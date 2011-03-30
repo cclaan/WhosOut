@@ -14,6 +14,8 @@
 }
 
 
+@property int beenHereCount;
+
 @property double lat;
 @property double lng;
 @property double distanceFromMe;
@@ -22,6 +24,7 @@
 
 @property (nonatomic, retain) NSString * name;
 @property (nonatomic, retain) NSString * venueId;
+@property (nonatomic, retain) NSString * categoryIconUrl;
 @property (nonatomic, retain) NSMutableArray * peopleHere;
 
 @property (nonatomic, retain) NSString * address;

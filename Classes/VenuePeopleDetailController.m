@@ -1,21 +1,21 @@
 //
-//  VenueDetailController.m
+//  VenuePeopleDetailController.m
 //  MoreSquare
 //
 //  Created by Chris Laan on 3/26/11.
 //  Copyright 2011 Laan Labs. All rights reserved.
 //
 
-#import "VenueDetailController.h"
-#import <MapKit/MKAnnotation.h>
-#import "VenueAnnotation.h"
+#import "VenuePeopleDetailController.h"
 #import "Locator.h"
-#import "MBProgressHUD.h"
-#import "Foursquare2.h"
+#import "Model.h"
+#import "UserDetailController.h"
 
 #import "NSString+EscapingUtils.h"
 
-@implementation VenueDetailController
+#import "Foursquare2.h"
+
+@implementation VenuePeopleDetailController
 
 @synthesize delegate, venue;
 
@@ -64,25 +64,9 @@
 	//self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSave target:self action:nil];
 	//self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Fav" style:UIBarButtonItemStylePlain target:self action:nil];
 	
-	mapView.showsUserLocation = YES;
-	
+
 	
 	if ( self.venue ) {
-		
-		VenueAnnotation * venueAnno = [[VenueAnnotation alloc] init];
-		venueAnno.venue = self.venue;
-		[mapView addAnnotation:venueAnno];
-		
-		
-		MKCoordinateRegion newRegion;
-    
-		newRegion.center.latitude = self.venue.lat;
-		newRegion.center.longitude = self.venue.lng;
-	
-		newRegion.span.latitudeDelta = 0.0112872;
-		newRegion.span.longitudeDelta = 0.0109863;
-		
-		[mapView setRegion:newRegion animated:YES];
 		
 		
 		if ( venue.phone != nil ) {
@@ -101,65 +85,66 @@
 			[favoriteButton setTitle:@"Mark Favorite"];
 		}
 			
-		
 	
 	}
 	
 	
-}
-
-- (MKAnnotationView *)mapView:(MKMapView *)theMapView viewForAnnotation:(id <MKAnnotation>)annotation
-{
-    // if it's the user location, just return nil.
-    if ([annotation isKindOfClass:[MKUserLocation class]])
-        return nil;
-
-    if ([annotation isKindOfClass:[VenueAnnotation class]]) 
-    {
-        // try to dequeue an existing pin view first
-        static NSString* VenueAnnotationIdentifier = @"venueAnnotationIdentifier";
-        MKPinAnnotationView* pinView = (MKPinAnnotationView *)
-		[mapView dequeueReusableAnnotationViewWithIdentifier:VenueAnnotationIdentifier];
-        if (!pinView)
-        {
-            // if an existing pin view was not available, create one
-            MKPinAnnotationView* customPinView = [[[MKPinAnnotationView alloc]
-												   initWithAnnotation:annotation reuseIdentifier:VenueAnnotationIdentifier] autorelease];
-            customPinView.pinColor = MKPinAnnotationColorPurple;
-            customPinView.animatesDrop = YES;
-            customPinView.canShowCallout = YES;
-            
-            // add a detail disclosure button to the callout which will open a new view controller page
-            //
-            // note: you can assign a specific call out accessory view, or as MKMapViewDelegate you can implement:
-            //  - (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control;
-            //
-			
-            UIButton* rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
-            [rightButton addTarget:self
-                            action:@selector(showDetails:)
-                  forControlEvents:UIControlEventTouchUpInside];
-            customPinView.rightCalloutAccessoryView = rightButton;
-			
-			
-            return customPinView;
-        }
-        else
-        {
-            pinView.annotation = annotation;
-        }
-        return pinView;
-    }
-    
-    return nil;
-}
-
--(void) showDetails:(id)sender {
+	if ( venueView == nil ) {
+		
+		venueView = [[VenueView alloc] init];
+		//venView.genderPreference = pref;
+		venueView.venue = self.venue;
+		venueView.delegate = self;
+		
+	}
 	
-	NSLog(@"details");
+	GenderPreference pref = [Model instance].genderPreference;
+	float heightOfView; 
+	
+	if ( pref == GENDER_PREFERENCE_ALL ) {
+		heightOfView = 64 + ceil( (float)venue.numPeopleHereWithPhotos / 2.0 ) * 154;
+	} else if ( pref == GENDER_PREFERENCE_MALES ) {
+		heightOfView = 64 + ceil( (float)venue.numGuysHereWithPhotos / 2.0 ) * 154;
+	} else if ( pref == GENDER_PREFERENCE_FEMALES ) {
+		heightOfView = 64 + ceil( (float)venue.numGirlsHereWithPhotos / 2.0 ) * 154;
+	}
+	
+	
+	
+	venueView.frame = CGRectMake(0, 0, self.view.frame.size.width, heightOfView );
+	
+	[scrollView addSubview:venueView];
+	
+	scrollView.contentSize = CGSizeMake(self.view.frame.size.width, heightOfView);
+
+	
+}
+
+#pragma mark -
+#pragma mark Venue View Delegate
+
+
+-(void) venueViewDidClickVenueTitle:(VenueView*)venView {
+	
+	// nothing...
 	
 	
 }
+
+
+-(void) venueView:(VenueView*)venView clickedUser:(FSUser*)usr {
+	
+	NSLog(@"User clicked: %@ " , usr );
+	
+	//self.hidesBottomBarWhenPushed  = YES;
+	
+	UserDetailController * udc = [[UserDetailController alloc] initWithUser:usr];
+	[self.navigationController pushViewController:udc animated:YES];
+	
+	
+}
+
+
 
 
 #pragma mark Buttons Actions
@@ -242,24 +227,26 @@
 	
 }
 
+
+
 -(IBAction) checkinClicked {
 	
 	/*
-	broadcastPrivate,
-	broadcastPublic,
-	broadcastFacebook,
-	broadcastTwitter,
-	broadcastBoth
-	*/
+	 broadcastPrivate,
+	 broadcastPublic,
+	 broadcastFacebook,
+	 broadcastTwitter,
+	 broadcastBoth
+	 */
 	
 	//
 	
 	UIAlertView * al = [[UIAlertView alloc] initWithTitle:@"Are you sure?" message:[NSString stringWithFormat:@"Do you want to publicly check in at %@",venue.name] delegate:self cancelButtonTitle:@"No" otherButtonTitles:@"Yes",nil];
 	[al show];
 	[al release];
-							
 	
-
+	
+	
 	
 	
 }
@@ -304,6 +291,7 @@
 	
 	
 }
+
 
 /*
 // Override to allow orientations other than the default portrait orientation.

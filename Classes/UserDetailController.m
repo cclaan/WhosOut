@@ -43,6 +43,9 @@
     
 	[super viewDidLoad];
 	
+	userImageView.backgroundColor = [UIColor darkGrayColor];
+	userImageView.contentMode = UIViewContentModeScaleAspectFit;
+	
 	//userImageView.image = 
 	[userImageView setImageURL:[NSURL URLWithString:user.photoUrl ]];
 	
@@ -56,6 +59,12 @@
 	
 	[userStatsButton setTitle:[NSString stringWithFormat:@"%i Checkins" , 3 ] forState:UIControlStateNormal];
 	
+	if ( user.isLocalFavorite ) {
+		[favoriteUserButton setTitle:@"Unfavorite" forState:UIControlStateNormal];
+	} else {
+		[favoriteUserButton setTitle:@"Mark Favorite" forState:UIControlStateNormal];
+	}
+	
 	[Foursquare2 getDetailForUser: user.userId callback:^(BOOL success, id result){
 		
 		
@@ -68,6 +77,34 @@
 	
 	
 }
+
+
+-(IBAction) favoriteUserClicked {
+	
+	
+	
+	if ( user.isLocalFavorite ) {
+		[self.user unFavorite];
+	} else {
+		[self.user markAsFavorite];
+	}
+	
+	
+	if ( user.isLocalFavorite ) {
+		[favoriteUserButton setTitle:@"Unfavorite" forState:UIControlStateNormal];
+	} else {
+		[favoriteUserButton setTitle:@"Mark Favorite" forState:UIControlStateNormal];
+	}
+	
+	
+	
+}
+
+-(IBAction) buyDrinkClicked {
+	
+	
+}
+
 
 
 /*

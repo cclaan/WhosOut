@@ -12,8 +12,9 @@
 @interface MoreSquareAppDelegate : NSObject <UIApplicationDelegate> {
     
     UIWindow *window;
-    UINavigationController *navigationController;
+    IBOutlet UINavigationController * randomNavigationController;
 	UITabBarController * tabController;
+	
 	
 }
 

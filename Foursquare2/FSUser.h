@@ -8,11 +8,28 @@
 
 #import <Foundation/Foundation.h>
 
+typedef struct ExtraUserData {
+	
+	BOOL loading;
+	BOOL loaded;
+	
+} ExtraUserData;
+
+@class FSVenue;
 
 @interface FSUser : NSObject {
 
+	
+	ExtraUserData _tempExtraData;
 }
 
+@property ExtraUserData * extraData;
+
+@property BOOL isMyFriend;
+
+@property (nonatomic, retain) FSVenue * currentVenue;
+
+@property BOOL isLocalFavorite;
 @property BOOL itsaLady;
 @property BOOL hasPhoto;
 @property (nonatomic, retain) NSString * firstName;

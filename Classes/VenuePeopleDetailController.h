@@ -1,5 +1,5 @@
 //
-//  VenueDetailController.h
+//  VenuePeopleDetailController.h
 //  MoreSquare
 //
 //  Created by Chris Laan on 3/26/11.
@@ -8,20 +8,17 @@
 
 #import <UIKit/UIKit.h>
 #import "FSObjects.h"
-//#import <MapKit/MapKit.h>
-#include <MapKit/MapKit.h>
-#include <MapKit/MKAnnotation.h>
+#import "VenueView.h"
 
 @class MKAnnotation;
 
-@interface VenueDetailController : UIViewController <MKMapViewDelegate> {
-	
-	IBOutlet MKMapView * mapView;
-	
-	//MKAnnotation * venueAnnotation;
+@interface VenuePeopleDetailController : UIViewController {
+		
 	IBOutlet UIBarButtonItem * favoriteButton;
 	IBOutlet UIBarButtonItem * callButton;
 	
+	VenueView * venueView;
+	IBOutlet UIScrollView * scrollView;
 	
 }
 

@@ -17,6 +17,8 @@
 #import "VenueDetailController.h"
 #import "UserDetailController.h"
 #import "SettingsPopupController.h"
+#import "PickFavoriteVenuesController.h"
+#import "PickFavoriteVenuesControllerB.h"
 
 #import "Model.h"
 
@@ -36,11 +38,14 @@
 	[super viewDidLoad];
 	
 	
-	self.title = @"Favorite Venues";
-	self.navigationItem.title = @"Favorite Venues";
+	self.title = @"Fav Venues";
+	self.navigationItem.title = @"Fav Venues";
 	//self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bar-logo.png"]];
 	//self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Ω" style:UIBarButtonItemStylePlain target:self action:@selector(settingsClicked)];
 	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"settings-bar-button.png"] style:UIBarButtonItemStylePlain target:self action:@selector(settingsClicked)];
+	
+	//self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"refresh-icon.png"] style:UIBarButtonItemStylePlain target:self action:@selector(refreshClicked)];
+	self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addFavoriteClicked)];
 	
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(genderPrefChanged) name:kGenderChangedNotification object:nil];
 	
@@ -69,14 +74,22 @@
 
 -(void) viewWillAppear:(BOOL)animated {
 	
+	NSLog(@"will appear");
 	
 	if ( [Foursquare2 isNeedToAuthorize]) {
 		
 		return;
 		
-	} else if ( !isLoading && (venuesArray ==nil || ([venuesArray count] ==0) ) ) {
+	} else if ( !isLoading && (venuesArray ==nil || ([venuesArray count] ==0) || ([Model instance].favoritesAreOutOfDate )) ) {
 		
-		if ( [[Model instance].favoriteVenues count] == 0 ) { return; }
+		if ( [[Model instance].favoriteVenues count] == 0 ) { 
+			
+			[self showNoFavs];
+			return; 
+			
+		} else {
+			[self hideNoFavs];
+		}
 		
 		[self startLocation];
 		
@@ -97,15 +110,76 @@
 	
 }
 
+-(void) hideNoFavs {
+	
+	NSLog(@"hide favs");
+	
+	if ( [noFavsView superview] ) {
+		[noFavsView removeFromSuperview];
+		noFavsView = nil;
+	}
+	
+}
+
+-(void) showNoFavs {
+	
+	NSLog(@"show favs");
+	
+	[self clearDataAndViews];
+	
+	noFavsView = [[UIView alloc] initWithFrame:CGRectInset(self.view.bounds, 36, 130)];
+	noFavsView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.2];
+	noFavsView.layer.cornerRadius = 20;
+	noFavsView.center = self.view.center;
+	
+	UILabel * lab = [[UILabel alloc] init];
+	lab.font = [UIFont boldSystemFontOfSize:18];
+	lab.textColor = [UIColor colorWithWhite:1.0 alpha:0.8];
+	lab.backgroundColor = [UIColor clearColor];
+	lab.textAlignment = UITextAlignmentCenter;
+	lab.text = @"Choose Favorite\nVenues By Clicking\n'+' Above";
+	lab.numberOfLines = 3;
+	lab.frame = CGRectInset(noFavsView.bounds, 5, 5);
+	
+	//[lab sizeToFit];
+	[noFavsView addSubview:lab];
+	[lab release];
+	
+	[self.view addSubview:noFavsView];
+	[noFavsView release];
+	
+}
+
+
+
 #pragma mark -
 #pragma mark Buttons
 
+-(void) addFavoriteClicked {
+	
+	NSLog(@"yay");
+	
+	
+	PickFavoriteVenuesController * pc = [[PickFavoriteVenuesController alloc] init];
+	
+	UINavigationController * nc = [[UINavigationController alloc ] initWithRootViewController:pc];
+	
+	[self presentModalViewController:nc animated:YES];
+	
+	[pc release];
+	[nc release];
+	
+	
+}
+
 -(IBAction) refreshClicked {
 	
-	if ( [[Model instance].favoriteVenues count] == 0 ) { return; }
+	if ( [[Model instance].favoriteVenues count] == 0 ) { 
+		[self showNoFavs];
+		return; 
+	}
 		
 	if ( isLoading ) { return; }
-	
 	
 	[self startLocation];
 	
@@ -236,17 +310,7 @@
 	
 }
 
--(void) findPeople {
-	
-	
-	//loc = [Locator instance].location;
-	
-	//NSLog(@"Got location: %@ " , [Locator instance].latString );
-	
-	//[Foursquare2 searchVenuesNearByLatitude:[Locator instance].latString longitude:[Locator instance].lonString accuracyLL:@"5000" altitude:nil accuracyAlt:nil query:@"" limit:@"200" intent:nil callback:^(BOOL success,id result){
-	
-	hud.labelText = @"Searching...";
-	
+-(void) clearDataAndViews {
 	
 	[venueViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
 	
@@ -260,6 +324,22 @@
 	[venuesArray removeAllObjects];
 	[venuesArray release];
 	venuesArray = nil;
+	
+}
+
+-(void) findPeople {
+	
+	
+	//loc = [Locator instance].location;
+	
+	//NSLog(@"Got location: %@ " , [Locator instance].latString );
+	
+	//[Foursquare2 searchVenuesNearByLatitude:[Locator instance].latString longitude:[Locator instance].lonString accuracyLL:@"5000" altitude:nil accuracyAlt:nil query:@"" limit:@"200" intent:nil callback:^(BOOL success,id result){
+	
+	hud.labelText = @"Searching...";
+	
+	
+	[self clearDataAndViews];
 	
 	//[Foursquare2 getTrendingVenuesNearByLatitude:[Locator instance].latString longitude:[Locator instance].lonString radius:@"5000" limit:@"50" callback:^(BOOL success,id result){
 	
@@ -349,6 +429,7 @@
 	NSLog(@"num: %i , count: %i " , numberOfVenuesToQuery , [venuesArray count] );
 	
 	if ( [venuesArray count] == numberOfVenuesToQuery ) {
+		[Model instance].favoritesAreOutOfDate = NO;
 		[self stopLoading];
 	}
 	
@@ -386,6 +467,7 @@
 	
 	GenderPreference pref = [Model instance].genderPreference;
 	
+	/*
 	if ( pref == GENDER_PREFERENCE_ALL && ven.numPeopleHereWithPhotos == 0 ) {
 		return;
 	} else if ( pref == GENDER_PREFERENCE_FEMALES && ven.numGirlsHereWithPhotos == 0 ) {
@@ -393,6 +475,7 @@
 	} else if ( pref == GENDER_PREFERENCE_MALES && ven.numGuysHereWithPhotos == 0 ) {
 		return;
 	}
+	*/
 	
 	VenueView * venView = nil;
 	

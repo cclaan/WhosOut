@@ -11,6 +11,9 @@
 #import "FoursquareWebLogin.h"
 #import "Model.h"
 
+
+#define kLastTabOpenIndex @"kLastTabOpenIndex"
+
 @implementation MoreSquareAppDelegate
 
 @synthesize window;
@@ -27,11 +30,13 @@
 	
 	[[Model instance] setupModel]; 
 	
+	int lastTabIndex = [[NSUserDefaults standardUserDefaults] integerForKey:kLastTabOpenIndex];
+	tabController.delegate = self;
+	[tabController setSelectedIndex:lastTabIndex];
+	
     // Add the navigation controller's view to the window and display.
     [self.window addSubview:tabController.view];
     [self.window makeKeyAndVisible];
-
-	
 	
 	if ( [Foursquare2 isNeedToAuthorize]) {
 		
@@ -47,10 +52,22 @@
 	
 	}
 	
-	
+	[Model instance].mainWindow = window;
+	[Model instance].viewForHUD = randomNavigationController.view;
 	
     return YES;
 }
+
+- (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController {
+	
+	int index = [tabBarController.viewControllers indexOfObject:viewController];
+	
+	[[NSUserDefaults standardUserDefaults] setInteger:index forKey:kLastTabOpenIndex];
+	[[NSUserDefaults standardUserDefaults] synchronize];
+	
+	
+}
+
 
 
 #pragma mark -
@@ -65,11 +82,13 @@ Foursquare2Callback authorizeCallbackDelegate;
 	FoursquareWebLogin *loginCon = [[FoursquareWebLogin alloc] initWithUrl:url];
 	loginCon.delegate = self;
 	loginCon.selector = @selector(setCode:);
+	
 	UINavigationController *navCon = [[UINavigationController alloc]initWithRootViewController:loginCon];
 	
-	UINavigationItem * closeButton = [[UIBarButtonItem alloc] initWithTitle:@"Close" style:UIBarButtonItemStylePlain target:nil action:nil];
+	UINavigationItem * closeButton = [[UIBarButtonItem alloc] initWithTitle:@"Close" style:UIBarButtonItemStylePlain target:self action:@selector(closeAuthController)];
 	loginCon.navigationItem.rightBarButtonItem = closeButton;
-	
+	loginCon.navigationItem.title = @"Whos Out + Foursquare";
+	navCon.navigationBar.tintColor = [UIColor greenColor];
 	
 	[controller presentModalViewController:navCon animated:YES];
 	[navCon release];
@@ -87,6 +106,12 @@ Foursquare2Callback authorizeCallbackDelegate;
             [authorizeCallbackDelegate release];
 		}
 	}];
+}
+
+-(void) closeAuthController {
+	
+	[tabController dismissModalViewControllerAnimated:YES];
+	
 }
 
 

@@ -16,9 +16,11 @@
 
 @synthesize name, venueId, peopleHere;
 @synthesize contentHeightForCell, numPeopleHere, numGirlsHere, numGuysHere, numGirlsHereWithPhotos, numGuysHereWithPhotos, numPeopleHereWithPhotos, address, state , city;
-@synthesize phone , isLocalFavorite;
+@synthesize phone , isLocalFavorite, categoryIconUrl;
 
 @synthesize distanceFromMe, lat, lng;
+
+@synthesize beenHereCount;
 
 - (id) init
 {
@@ -59,7 +61,7 @@
 		return;
 	}
 	
-	//-[[Model instance] addFavoriteVenue:self];
+	[[Model instance] addFavoriteVenue:self];
 	
 	FMDatabase * db = [Model instance].db;
 	
@@ -83,11 +85,13 @@
 	
 	self.isLocalFavorite = NO;
 	
-	//-[[Model instance] removeFavoriteVenue:self];
+	// same venue might be in memory in several places... 
+	[[Model instance] removeFavoriteVenue:self];
 	
 	FMDatabase * db = [Model instance].db;
 	
-	[db executeUpdate:@"UPDATE favorite_venues SET is_favorite = ? WHERE venue_id = ?;" , [NSNumber numberWithBool:self.isLocalFavorite], self.venueId ];
+	//[db executeUpdate:@"UPDATE favorite_venues SET is_favorite = ? WHERE venue_id = ?;" , [NSNumber numberWithBool:self.isLocalFavorite], self.venueId ];
+	[db executeUpdate:@"DELETE FROM favorite_venues WHERE venue_id = ?;" , self.venueId ];
 	
 	if ([db hadError]) {
 		
@@ -185,6 +189,21 @@
 		
 	}
 	
+	NSArray * categories = [data objectForKey:@"categories"];
+	
+	if ( categories && [categories count] > 0 ) {
+		for (id cat in categories) {
+			
+			id prim = [cat objectForKey:@"primary"];
+			
+			if ( prim ) {
+				venue.categoryIconUrl = [cat objectForKey:@"icon"];
+				break;
+			}
+									 
+		}
+	}
+		
 	venue.isLocalFavorite = [[Model instance] isVenueLocalFavorite:venue];
 	
 	NSArray * hereNow = [[data objectForKey:@"hereNow"] objectForKey:@"groups"];
@@ -253,6 +272,23 @@
 	
 	for (id obj in data) {
 		[arr addObject:[FSVenue venueFromJson:obj]];
+	}
+	
+	return arr;
+	
+}
+
++(NSMutableArray*) venueArrayFromHistoryJson:(id) data {
+	
+	if ( ![data isKindOfClass:[NSArray class]] ) { return nil; }
+	
+	NSMutableArray * arr = [[[NSMutableArray alloc] init] autorelease];
+	
+	for (id obj in data) {
+		id venueObject = [obj objectForKey:@"venue"];
+		FSVenue * ven = [FSVenue venueFromJson:venueObject];
+		ven.beenHereCount = [[obj objectForKey:@"beenHere"] integerValue];
+		[arr addObject:ven];
 	}
 	
 	return arr;
