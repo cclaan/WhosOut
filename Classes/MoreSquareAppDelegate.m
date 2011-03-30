@@ -12,7 +12,7 @@
 #import "Model.h"
 
 
-#define kLastTabOpenIndex @"kLastTabOpenIndex"
+
 
 @implementation MoreSquareAppDelegate
 
@@ -40,14 +40,9 @@
 	
 	if ( [Foursquare2 isNeedToAuthorize]) {
 		
-		[self authorizeWithViewController:tabController 
-                                 Callback:^(BOOL success,id result){
-									 
-									 if (success) {
-										 [tabController.selectedViewController viewWillAppear:YES];
-									 }
-									 
-								 }];
+		//[self performSelector:@selector(showAuthSplash) withObject:nil afterDelay:1.0];
+		
+		[self showFoursquareAuth];
 		
 	
 	}
@@ -55,7 +50,74 @@
 	[Model instance].mainWindow = window;
 	[Model instance].viewForHUD = randomNavigationController.view;
 	
+	
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(logoutEvent) name:kFSShouldLogoutNotification object:nil];
+	
+	
     return YES;
+}
+
+-(void) logoutEvent {
+	
+	//[Foursquare2 setBaseURL:nil];
+	[Foursquare2 removeAccessToken];
+	
+	[self showAuthSplash];
+	
+}
+
+-(void) showAuthSplash {
+	
+	
+	if ( !splashView ) {
+		
+		splashView = [[UIView alloc] initWithFrame:tabController.view.frame];
+		
+		UIImageView * splashImage = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"no-auth-splash.png"]];
+		[splashView addSubview:splashImage];
+		[splashImage release];
+		
+		UIButton * authButton = [UIButton buttonWithType:UIButtonTypeRoundedRect];
+		authButton.frame = CGRectMake(40, 480/2-40, 320-80, 40);
+		[authButton setTitle:@"Authorize" forState:UIControlStateNormal];
+		[authButton addTarget:self action:@selector(showFoursquareAuth) forControlEvents:UIControlEventTouchUpInside];
+		[splashView addSubview:authButton];
+		
+	}
+	
+	//[self.window insertSubview:splashView atIndex:0];
+	//[tabController.view insertSubview:splashView aboveSubview:tabController.view];
+	[tabController.view insertSubview:splashView atIndex:2];
+	
+}
+
+-(void) hideAuthSplash {
+	
+	[splashView removeFromSuperview];
+	[splashView release];
+	splashView = nil;
+	
+}
+
+-(void) showFoursquareAuth {
+	
+	[self authorizeWithViewController:tabController 
+							 Callback:^(BOOL success,id result){
+								 
+								 if (success) {
+									 
+									 [self hideAuthSplash];
+									 [tabController.selectedViewController viewWillAppear:YES];
+									 
+								 } else {
+									 
+									 [self showAuthSplash];
+									 
+								 }
+								 
+							 }];
+	
+	
 }
 
 - (void)tabBarController:(UITabBarController *)tabBarController didSelectViewController:(UIViewController *)viewController {
@@ -83,16 +145,29 @@ Foursquare2Callback authorizeCallbackDelegate;
 	loginCon.delegate = self;
 	loginCon.selector = @selector(setCode:);
 	
+	loginCon.closeSelector = @selector(closeAuthScreen);
+	
+	/*
 	UINavigationController *navCon = [[UINavigationController alloc]initWithRootViewController:loginCon];
 	
 	UINavigationItem * closeButton = [[UIBarButtonItem alloc] initWithTitle:@"Close" style:UIBarButtonItemStylePlain target:self action:@selector(closeAuthController)];
 	loginCon.navigationItem.rightBarButtonItem = closeButton;
 	loginCon.navigationItem.title = @"Whos Out + Foursquare";
 	navCon.navigationBar.tintColor = [UIColor greenColor];
+	*/
 	
-	[controller presentModalViewController:navCon animated:YES];
-	[navCon release];
+	[controller presentModalViewController:loginCon animated:YES];
+	//[navCon release];
 	[loginCon release];	
+	
+	
+	
+}
+
+-(void) closeAuthScreen {
+	
+	[tabController dismissModalViewControllerAnimated:YES];
+	authorizeCallbackDelegate(NO,nil);
 	
 }
 
@@ -104,6 +179,8 @@ Foursquare2Callback authorizeCallbackDelegate;
 			[Foursquare2 setAccessToken:[result objectForKey:@"access_token"]];
 			authorizeCallbackDelegate(YES,result);
             [authorizeCallbackDelegate release];
+		} else {
+			authorizeCallbackDelegate(NO,nil);
 		}
 	}];
 }

@@ -124,6 +124,10 @@
 		74B55F201342A9DB00925C38 /* default-venue-image.png in Resources */ = {isa = PBXBuildFile; fileRef = 74B55F1F1342A9DB00925C38 /* default-venue-image.png */; };
 		74B55F441342B3B600925C38 /* PickFavoriteVenuesControllerB.m in Sources */ = {isa = PBXBuildFile; fileRef = 74B55F421342B3B600925C38 /* PickFavoriteVenuesControllerB.m */; };
 		74B55F451342B3B600925C38 /* PickFavoriteVenuesControllerB.xib in Resources */ = {isa = PBXBuildFile; fileRef = 74B55F431342B3B600925C38 /* PickFavoriteVenuesControllerB.xib */; };
+		74B55FD5134385CE00925C38 /* no-auth-splash.png in Resources */ = {isa = PBXBuildFile; fileRef = 74B55FD3134385CE00925C38 /* no-auth-splash.png */; };
+		74B55FD6134385CE00925C38 /* no-auth-splash@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 74B55FD4134385CE00925C38 /* no-auth-splash@2x.png */; };
+		74B55FEC13438FF100925C38 /* unselected-bar-tab@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 74B55FEA13438FF100925C38 /* unselected-bar-tab@2x.png */; };
+		74B55FED13438FF100925C38 /* selected-bar-tab@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 74B55FEB13438FF100925C38 /* selected-bar-tab@2x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -283,9 +287,9 @@
 		743F779E13354DC400B5BC21 /* NSStringAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringAdditions.m; sourceTree = "<group>"; };
 		743F779F13354DC400B5BC21 /* PhotoFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhotoFormatter.h; sourceTree = "<group>"; };
 		743F77A013354DC400B5BC21 /* PhotoFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PhotoFormatter.m; sourceTree = "<group>"; };
-		743F77BC13354DEB00B5BC21 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
-		743F77BD13354DEB00B5BC21 /* FoursquareWebLogin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FoursquareWebLogin.h; sourceTree = "<group>"; };
-		743F77BE13354DEB00B5BC21 /* FoursquareWebLogin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FoursquareWebLogin.m; sourceTree = "<group>"; };
+		743F77BC13354DEB00B5BC21 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Constants.h; path = ../Classes/Constants.h; sourceTree = "<group>"; };
+		743F77BD13354DEB00B5BC21 /* FoursquareWebLogin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FoursquareWebLogin.h; path = ../Classes/FoursquareWebLogin.h; sourceTree = "<group>"; };
+		743F77BE13354DEB00B5BC21 /* FoursquareWebLogin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FoursquareWebLogin.m; path = ../Classes/FoursquareWebLogin.m; sourceTree = "<group>"; };
 		743F77C813354E0C00B5BC21 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		743F77CC13354E1800B5BC21 /* libxml2.2.7.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.2.7.3.dylib; path = usr/lib/libxml2.2.7.3.dylib; sourceTree = SDKROOT; };
 		743F78021335518A00B5BC21 /* FSVenue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSVenue.h; sourceTree = "<group>"; };
@@ -317,6 +321,11 @@
 		74B55F411342B3B600925C38 /* PickFavoriteVenuesControllerB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PickFavoriteVenuesControllerB.h; sourceTree = "<group>"; };
 		74B55F421342B3B600925C38 /* PickFavoriteVenuesControllerB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PickFavoriteVenuesControllerB.m; sourceTree = "<group>"; };
 		74B55F431342B3B600925C38 /* PickFavoriteVenuesControllerB.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PickFavoriteVenuesControllerB.xib; sourceTree = "<group>"; };
+		74B55FD3134385CE00925C38 /* no-auth-splash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "no-auth-splash.png"; path = "images/no-auth-splash.png"; sourceTree = "<group>"; };
+		74B55FD4134385CE00925C38 /* no-auth-splash@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "no-auth-splash@2x.png"; path = "images/no-auth-splash@2x.png"; sourceTree = "<group>"; };
+		74B55FEA13438FF100925C38 /* unselected-bar-tab@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "unselected-bar-tab@2x.png"; path = "images/unselected-bar-tab@2x.png"; sourceTree = "<group>"; };
+		74B55FEB13438FF100925C38 /* selected-bar-tab@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "selected-bar-tab@2x.png"; path = "images/selected-bar-tab@2x.png"; sourceTree = "<group>"; };
+		74B5608A1343C1CA00925C38 /* WhosOutConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WhosOutConstants.h; path = Classes/WhosOutConstants.h; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* MoreSquare-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MoreSquare-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -345,9 +354,6 @@
 			children = (
 				1D3623240D0F684500981E51 /* MoreSquareAppDelegate.h */,
 				1D3623250D0F684500981E51 /* MoreSquareAppDelegate.m */,
-				743F77BC13354DEB00B5BC21 /* Constants.h */,
-				743F77BD13354DEB00B5BC21 /* FoursquareWebLogin.h */,
-				743F77BE13354DEB00B5BC21 /* FoursquareWebLogin.m */,
 				28C286DF0D94DF7D0034E888 /* AroundMeViewController.h */,
 				28C286E00D94DF7D0034E888 /* AroundMeViewController.m */,
 				741CEA6B133EBE1C00386C54 /* FavoriteVenuesController.h */,
@@ -418,6 +424,7 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				74B5608A1343C1CA00925C38 /* WhosOutConstants.h */,
 				7429A039133E7F6A00F27F81 /* Reachability */,
 				743F775B13354DC400B5BC21 /* Foursquare2 */,
 				743F774513354DB700B5BC21 /* EGO */,
@@ -536,6 +543,9 @@
 				743F776013354DC400B5BC21 /* HTTPRiot */,
 				743F779F13354DC400B5BC21 /* PhotoFormatter.h */,
 				743F77A013354DC400B5BC21 /* PhotoFormatter.m */,
+				743F77BC13354DEB00B5BC21 /* Constants.h */,
+				743F77BD13354DEB00B5BC21 /* FoursquareWebLogin.h */,
+				743F77BE13354DEB00B5BC21 /* FoursquareWebLogin.m */,
 				743F78A213355BA700B5BC21 /* FSObjects.h */,
 				743F78071335521A00B5BC21 /* FSUser.h */,
 				743F78081335521A00B5BC21 /* FSUser.m */,
@@ -681,6 +691,10 @@
 		743F79231335751D00B5BC21 /* image */ = {
 			isa = PBXGroup;
 			children = (
+				74B55FEA13438FF100925C38 /* unselected-bar-tab@2x.png */,
+				74B55FEB13438FF100925C38 /* selected-bar-tab@2x.png */,
+				74B55FD3134385CE00925C38 /* no-auth-splash.png */,
+				74B55FD4134385CE00925C38 /* no-auth-splash@2x.png */,
 				74B55F1F1342A9DB00925C38 /* default-venue-image.png */,
 				741CEDC11340218D00386C54 /* default-profile-image.png */,
 				741CEBBB133FF71C00386C54 /* map-pin-high.png */,
@@ -812,6 +826,10 @@
 				741CEDC21340218D00386C54 /* default-profile-image.png in Resources */,
 				74B55F201342A9DB00925C38 /* default-venue-image.png in Resources */,
 				74B55F451342B3B600925C38 /* PickFavoriteVenuesControllerB.xib in Resources */,
+				74B55FD5134385CE00925C38 /* no-auth-splash.png in Resources */,
+				74B55FD6134385CE00925C38 /* no-auth-splash@2x.png in Resources */,
+				74B55FEC13438FF100925C38 /* unselected-bar-tab@2x.png in Resources */,
+				74B55FED13438FF100925C38 /* selected-bar-tab@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

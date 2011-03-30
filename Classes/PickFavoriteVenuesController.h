@@ -26,6 +26,8 @@ typedef enum PickVenueViewMode {
 	IBOutlet UISearchBar * searchBar;
 	IBOutlet UISegmentedControl * segmentedControl;
 
+	IBOutlet UIButton * nearbyTabButton;
+	IBOutlet UIButton * pastTabButton;
 	
 	UISearchDisplayController * searchController;
 	
@@ -36,6 +38,8 @@ typedef enum PickVenueViewMode {
 	NSComparisonResult (^_sortByClosestFirst)(id obj1, id obj2);
 	NSComparisonResult (^_sortByBeenHereCount)(id obj1, id obj2);
 	
+	CGRect tFrame1;
+	CGRect tFrame2;
 }
 
 @property (nonatomic, retain) NSMutableArray * nearbyVenues;
@@ -45,5 +49,8 @@ typedef enum PickVenueViewMode {
 
 -(IBAction) closeClicked;
 -(IBAction) segmentChanged;
+
+-(IBAction) nearbyTabClicked;
+-(IBAction) pastTabClicked;
 
 @end

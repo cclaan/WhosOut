@@ -7,7 +7,8 @@
 //
 
 #import "SettingsPopupController.h"
-#import "Model.h"
+
+#import "WhosOutConstants.h"
 
 
 @implementation SettingsPopupController
@@ -26,12 +27,16 @@
 
 // Implement viewDidLoad to do additional setup after loading the view, typically from a nib.
 - (void)viewDidLoad {
-    [super viewDidLoad];
+    
+	[super viewDidLoad];
 	
 	UIImageView * imgView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bar-logo-backwards.png"]];
 	imgView.contentMode = UIViewContentModeCenter;
 	
 	titleBar.topItem.titleView = imgView;
+	
+	
+	
 	//UINavigationBar
 	//UINavigationItem * item = [[UINavigationItem alloc] init];
 	//item.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bar-logo-backwards.png"]];
@@ -44,6 +49,7 @@
 	
 	GenderPreference g = [Model instance].genderPreference;
 	
+	startPref = g;
 	
 	if ( g == GENDER_PREFERENCE_ALL ) {
 		genderSegment.selectedSegmentIndex = 2;
@@ -56,7 +62,17 @@
 }
 
 -(IBAction) closeClicked {
+	
+	
+	GenderPreference g = [Model instance].genderPreference;
+	
+	if ( startPref != g ) {
+		[[NSNotificationCenter defaultCenter] postNotificationName:kGenderChangedNotification object:nil];	
+	}
+	
+	
 	[self dismissModalViewControllerAnimated:YES];
+	
 }
 
 -(IBAction) genderPrefClicked {
@@ -66,21 +82,27 @@
 	if ( genderSegment.selectedSegmentIndex == 2 && [Model instance].genderPreference != GENDER_PREFERENCE_ALL ) {
 		
 		[Model instance].genderPreference = GENDER_PREFERENCE_ALL;
-		[[NSNotificationCenter defaultCenter] postNotificationName:kGenderChangedNotification object:nil];
+		//[[NSNotificationCenter defaultCenter] postNotificationName:kGenderChangedNotification object:nil];
 		
 	} else if ( genderSegment.selectedSegmentIndex == 0 && [Model instance].genderPreference != GENDER_PREFERENCE_MALES ) { 
 		
 		[Model instance].genderPreference = GENDER_PREFERENCE_MALES;
-		[[NSNotificationCenter defaultCenter] postNotificationName:kGenderChangedNotification object:nil];
+		//[[NSNotificationCenter defaultCenter] postNotificationName:kGenderChangedNotification object:nil];
 		
 	} else if ( genderSegment.selectedSegmentIndex == 1 && [Model instance].genderPreference != GENDER_PREFERENCE_FEMALES ) { 
 		
 		[Model instance].genderPreference = GENDER_PREFERENCE_FEMALES;
-		[[NSNotificationCenter defaultCenter] postNotificationName:kGenderChangedNotification object:nil];
+		//[[NSNotificationCenter defaultCenter] postNotificationName:kGenderChangedNotification object:nil];
 		
 	}
 	
+}
+
+-(IBAction) logoutClicked {
 	
+	[[NSNotificationCenter defaultCenter] postNotificationName:kFSShouldLogoutNotification object:nil];
+	
+	[self dismissModalViewControllerAnimated:YES];
 	
 	
 }

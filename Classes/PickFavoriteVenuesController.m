@@ -33,14 +33,15 @@
 	
     [super viewDidLoad];
 	
-	viewMode = VIEW_MODE_PAST_VENUES;
+	viewMode = VIEW_MODE_NEARBY;
 	
 	self.navigationItem.title = @"Pick a Fav";
 	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Close" style:UIBarButtonItemStyleDone target:self action:@selector(closeClicked)];
 	
 	
-	segmentedControl.selectedSegmentIndex = viewMode;
-	[segmentedControl addTarget:self action:@selector(segmentChanged) forControlEvents:UIControlEventValueChanged];
+	
+	//segmentedControl.selectedSegmentIndex = viewMode;
+	//[segmentedControl addTarget:self action:@selector(segmentChanged) forControlEvents:UIControlEventValueChanged];
 	
 	if ( !hud ) {
 		hud = [[MBProgressHUD alloc] initWithView:self.view];
@@ -84,16 +85,96 @@
 		
 	};
 	
+	//CGRect fr2 = [self.view addSubview:nearbyTabButton];
+	
+	CGRect fr2 = nearbyTabButton.frame;
+	CGRect fr3 = pastTabButton.frame;
+
+	//CGRect fr2 = [self.view convertRect:nearbyTabButton.frame toView:nil];
+	//CGRect fr3 = [self.view convertRect:pastTabButton.frame toView:self.navigationController.view];
+	//CGRect fr2 = [self.navigationController.navigationBar convertRect:nearbyTabButton.frame fromView:nil];
+	//CGRect fr3 = [self.navigationController.navigationBar convertRect:pastTabButton.frame fromView:self.view];
+	
+	[self.navigationController.view addSubview:nearbyTabButton];
+	[self.navigationController.view addSubview:pastTabButton];
+	
+	fr2.origin.y = 43 + 20;
+	fr3.origin.y = 43 + 20;
+	
+	nearbyTabButton.frame = fr2;
+	pastTabButton.frame = fr3;
 	
 }
 
 -(void) viewDidAppear:(BOOL)animated {
 	
 	
-	[self getDataIfNeeded];
+	[self nearbyTabClicked];
+	
+	//[self getDataIfNeeded];
+	
+	// if ( hasLocation ) {
+		//--[self getDataIfNeeded];
+	//} else {
+		[self startLocation];
+	//}
 	
 	
 }
+
+
+#pragma mark -
+
+-(void) startLocation {
+	
+	//[self setLoading:YES withMessage:@"Locating..."];
+	
+	hud.frame = self.view.bounds;
+	[self.view addSubview:hud];
+	hud.labelText = @"Locating...";
+	[hud show:YES];
+	
+	[Locator instance].currentDesiredAccuracy = 1500;
+	[Locator instance].location = nil;
+	[[Locator instance] start];
+	
+	[self performSelector:@selector(locationLoop) withObject:nil afterDelay:0.2];
+	
+}
+
+
+-(void) locationLoop {
+	
+	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(locationLoop) object:nil];
+	
+	if ( [Locator instance].hasReceivedLocation || [Locator instance].hasReceivedError ) {
+		
+		CLLocation * loc;
+		
+		if ( [Locator instance].hasReceivedError ) {
+			
+			UIAlertView * al = [[UIAlertView alloc] initWithTitle:@"Error" message:@"We could not locate you. Being indoors can degrade location accuracy." delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil];
+			[al show];
+			[al release];
+			
+			return;
+			
+		} else {
+			
+			[self getDataIfNeeded];
+			
+		}
+		
+	} else {
+		
+		[self performSelector:@selector(locationLoop) withObject:nil afterDelay:0.4];
+		
+	}
+	
+	
+}
+
+#pragma mark -
 
 -(void) getDataIfNeeded {
 	
@@ -192,7 +273,7 @@
 		
 		[hud hide:YES];
 		
-		//NSLog(@"search result: %@ " , result );
+		NSLog(@"search result: %@ " , result );
 		
 		
 		if ( success ) {
@@ -267,6 +348,36 @@
 	
 }
 
+#pragma mark -
+#pragma mark  Buttons
+
+-(IBAction) nearbyTabClicked {
+	
+	[nearbyTabButton setSelected:YES];
+	[pastTabButton setSelected:NO];
+	//[self.navigationController.view insertSubview:pastTabButton belowSubview:nearbyTabButton];
+	[self.navigationController.view addSubview:nearbyTabButton];
+	
+	if ( viewMode != VIEW_MODE_NEARBY ) {
+		viewMode = VIEW_MODE_NEARBY;
+		[self getDataIfNeeded];
+	}
+	
+}
+
+-(IBAction) pastTabClicked {
+
+	[nearbyTabButton setSelected:NO];
+	[pastTabButton setSelected:YES];
+	//[self.navigationController.view insertSubview:nearbyTabButton belowSubview:pastTabButton];
+	[self.navigationController.view addSubview:pastTabButton];
+	
+	if ( viewMode != VIEW_MODE_PAST_VENUES ) {
+		viewMode = VIEW_MODE_PAST_VENUES;
+		[self getDataIfNeeded];
+	}
+	
+}
 
 -(IBAction) segmentChanged {
 
@@ -444,11 +555,55 @@
 }
 
 - (void)searchDisplayControllerWillBeginSearch:(UISearchDisplayController *)controller {
+	
 	//--[[NSNotificationCenter defaultCenter] postNotificationName:@"tableSearchBegan" object:nil];
+	
+	CGRect fr = nearbyTabButton.frame;
+	CGRect fr2 = pastTabButton.frame;
+	fr.origin.y -= 44;
+	fr2.origin.y -= 44;
+	
+	[UIView beginAnimations:@"fadeInButtons" context:nil];
+	[UIView setAnimationDuration:0.3];
+	nearbyTabButton.alpha = 0.0;
+	pastTabButton.alpha = 0.0;
+	nearbyTabButton.frame = fr;
+	pastTabButton.frame = fr2;
+	
+	[UIView commitAnimations];
+	
 }
 
 - (void)searchDisplayControllerWillEndSearch:(UISearchDisplayController *)controller {
 	//--[[NSNotificationCenter defaultCenter] postNotificationName:@"tableSearchEnded" object:nil];
+	
+	CGRect fr = nearbyTabButton.frame;
+	CGRect fr2 = pastTabButton.frame;
+	fr.origin.y += 44;
+	fr2.origin.y += 44;
+	
+	[UIView beginAnimations:@"fadeInButtons" context:nil];
+	[UIView setAnimationDuration:0.3];
+	nearbyTabButton.alpha = 1.0;
+	pastTabButton.alpha = 1.0;
+	nearbyTabButton.frame = fr;
+	pastTabButton.frame = fr2;
+	[UIView commitAnimations];
+	
+	[self performSelector:@selector(addTabButtons) withObject:nil afterDelay:0.1];
+	[self performSelector:@selector(addTabButtons) withObject:nil afterDelay:0.35];
+}
+
+-(void) addTabButtons {
+	
+	if ( viewMode == VIEW_MODE_NEARBY ) {
+		[self.navigationController.view addSubview:pastTabButton];
+		[self.navigationController.view addSubview:nearbyTabButton];
+	} else {
+		[self.navigationController.view addSubview:nearbyTabButton];
+		[self.navigationController.view addSubview:pastTabButton];
+	}
+	
 }
 
 #pragma mark search bar

@@ -132,7 +132,21 @@
 
 -(void) genderPrefChanged {
 	
-	[self refreshClicked];
+	
+	[venueViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+	
+	scrollView.contentOffset = CGPointMake(0, 0);
+	
+	[venueViews removeAllObjects];
+	[venueViews release];
+	
+	venueViews = [[NSMutableArray alloc] init];
+	
+	currentYOffset = 0;
+	
+	//[self refreshClicked];
+	[self displayVenues];
+	
 	
 }
 

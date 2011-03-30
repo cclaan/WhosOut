@@ -106,7 +106,8 @@
 
 -(void) genderPrefChanged {
 	
-	[self refreshClicked];
+	//[self refreshClicked];
+	[self displayVenues];
 	
 }
 
@@ -126,6 +127,11 @@
 	NSLog(@"show favs");
 	
 	[self clearDataAndViews];
+	
+	if ( [noFavsView superview] ) {
+		[noFavsView removeFromSuperview];
+		noFavsView = nil;
+	}
 	
 	noFavsView = [[UIView alloc] initWithFrame:CGRectInset(self.view.bounds, 36, 130)];
 	noFavsView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.2];

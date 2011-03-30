@@ -117,6 +117,14 @@
 }
 
 
+-(void) genderPrefChanged {
+	
+	//[self refreshClicked];
+	[self displayVenues];
+	
+}
+
+
 #pragma mark -
 #pragma mark Buttons
 
@@ -159,8 +167,17 @@
 	if ( venuesArray ) {
 		
 		FSVenue * venue = nil;
+		GenderPreference g = [Model instance].genderPreference;
 		
 		for (venue in venuesArray) {
+			
+			if ( g == GENDER_PREFERENCE_ALL ) {
+				if ( venue.numPeopleHereWithPhotos == 0 ) { continue; }
+			} else if ( g == GENDER_PREFERENCE_MALES ) {
+				if ( venue.numGuysHereWithPhotos == 0 ) { continue; }
+			} else if ( g == GENDER_PREFERENCE_FEMALES ) {
+				if ( venue.numGirlsHereWithPhotos == 0 ) { continue; }
+			}
 			
 			VenueAnnotation * venueAnno = [[VenueAnnotation alloc] init];
 			venueAnno.venue = venue;

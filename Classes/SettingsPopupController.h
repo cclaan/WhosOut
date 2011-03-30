@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "Model.h"
 
 @interface SettingsPopupController : UIViewController {
 	
@@ -15,10 +15,15 @@
 	IBOutlet UISegmentedControl * genderSegment;
 	IBOutlet UINavigationBar * titleBar;
 	
+	GenderPreference startPref;
+	
+	
 }
 
 -(IBAction) genderPrefClicked;
 -(IBAction) radiusChanged;
 -(IBAction) closeClicked;
+
+-(IBAction) logoutClicked;
 
 @end

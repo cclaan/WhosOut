@@ -3,7 +3,8 @@
 #import "Locator.h"
 #import "Foursquare2.h"
 
-#define kGenderPreferenceKey @"kGenderPreferenceKey"
+#import "WhosOutConstants.h"
+
 
 static Model *instance = nil;
 
