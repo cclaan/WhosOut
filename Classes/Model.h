@@ -9,9 +9,15 @@
 
 #import "FSObjects.h"
 
+#import "MBProgressHUD.h"
+
+#import "GeoFunctions.h"
+
 #define DATABASE_FILE @"cacheditems.sqlite3"
 
 #define kGenderChangedNotification @"GenderChangedNotification"
+#define kVenuesUpdatedNotification @"VenuesUpdatedNotification"
+#define kVenuesUpdateStartedNotification @"VenuesUpdateStartedNotification"
 
 //@class Reachability;
 
@@ -34,11 +40,28 @@ typedef enum GenderPreference {
 	
 	NSComparisonResult (^_sortByClosestFirst)(id obj1, id obj2);
 	
+	
+	BOOL isLoadingNearbyVenues;
+	NSMutableArray * venuesArray;
+	int numberOfVenuesToQuery;
+	MBProgressHUD * hud;
+	
+	
 }
+
+// new ones
+@property BOOL isLoadingNearbyVenues;
+@property (nonatomic, retain) NSMutableArray * venuesArray;
+
+@property BOOL favoritesAreOutOfDate;
+@property BOOL favoriteUsersAreOutOfDate;
 
 @property GenderPreference genderPreference;
 
 @property BOOL hasInternet;
+
+@property (nonatomic, assign) UIView * mainWindow;
+@property (nonatomic, assign) UIView * viewForHUD;
 
 @property (nonatomic, retain) Reachability * hostReach;
 
@@ -53,5 +76,8 @@ typedef enum GenderPreference {
 -(void) removeFavoriteVenue:(FSVenue*)ven;
 -(void) addFavoriteVenue:(FSVenue*)ven;
 -(void) refreshLocalFavorites;
+
+-(void) startLocationAndFindNearbyVenues;
+
 
 @end

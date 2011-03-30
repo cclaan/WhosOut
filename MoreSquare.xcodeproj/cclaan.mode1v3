@@ -280,7 +280,7 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>10</integer>
+									<integer>22</integer>
 									<integer>1</integer>
 									<integer>0</integer>
 								</array>
@@ -330,6 +330,10 @@
 										<string>1CE0B20406471E060097A5F4</string>
 										<key>PBXProjectModuleLabel</key>
 										<string>VenuesMapController.m</string>
+										<key>_historyCapacity</key>
+										<integer>0</integer>
+										<key>bookmark</key>
+										<string>74B560E31343C6C700925C38</string>
 										<key>history</key>
 										<array>
 											<string>743F78B613355EB100B5BC21</string>
@@ -353,6 +357,63 @@
 											<string>741CEA67133EBDC600386C54</string>
 											<string>741CEA9A133EC29100386C54</string>
 											<string>741CEAD5133FE0FE00386C54</string>
+											<string>741CEB0F133FE89200386C54</string>
+											<string>741CEB8A133FF2D800386C54</string>
+											<string>741CEB9D133FF3E200386C54</string>
+											<string>741CEBB0133FF53100386C54</string>
+											<string>741CEC0F133FFDBF00386C54</string>
+											<string>741CEC83134005C300386C54</string>
+											<string>741CECBE13400A4E00386C54</string>
+											<string>741CECEB13400C1300386C54</string>
+											<string>741CECEC13400C1300386C54</string>
+											<string>741CED5E13401B5600386C54</string>
+											<string>741CED5F13401B5600386C54</string>
+											<string>741CED8E13401CCF00386C54</string>
+											<string>741CED9013401CCF00386C54</string>
+											<string>741CEDD11340223000386C54</string>
+											<string>741CEDF2134023F400386C54</string>
+											<string>741CEE4B1340292300386C54</string>
+											<string>741CEE4C1340292300386C54</string>
+											<string>741CEE4D1340292300386C54</string>
+											<string>7421400E134163A50016E71A</string>
+											<string>742140211341652A0016E71A</string>
+											<string>7421404E13416A720016E71A</string>
+											<string>7421404F13416A720016E71A</string>
+											<string>7421405013416A720016E71A</string>
+											<string>7421405113416A720016E71A</string>
+											<string>7421405213416A720016E71A</string>
+											<string>7421405313416A720016E71A</string>
+											<string>7421406A13416C5D0016E71A</string>
+											<string>742140C813417EE30016E71A</string>
+											<string>742140C913417EE30016E71A</string>
+											<string>74214116134187D90016E71A</string>
+											<string>74214117134187D90016E71A</string>
+											<string>74B55E32134287FB00925C38</string>
+											<string>74B55F021342A84800925C38</string>
+											<string>74B55F051342A84800925C38</string>
+											<string>74B55F191342A92300925C38</string>
+											<string>74B55F1A1342A92300925C38</string>
+											<string>74B55F501342B41E00925C38</string>
+											<string>74B55F581342B5F700925C38</string>
+											<string>74B55F851342C38700925C38</string>
+											<string>74B55F861342C38700925C38</string>
+											<string>74B55FF3134391F200925C38</string>
+											<string>74B560141343940600925C38</string>
+											<string>74B5606513439B7400925C38</string>
+											<string>74B5607F1343C03C00925C38</string>
+											<string>74B560841343C17100925C38</string>
+											<string>74B560951343C2BB00925C38</string>
+											<string>74B560961343C2BB00925C38</string>
+											<string>74B560971343C2BB00925C38</string>
+											<string>74B560991343C2BB00925C38</string>
+											<string>74B560A11343C2ED00925C38</string>
+											<string>74B560A81343C31900925C38</string>
+											<string>74B560AF1343C38800925C38</string>
+											<string>74B560D31343C5AF00925C38</string>
+											<string>74B560DA1343C61100925C38</string>
+											<string>74B560DB1343C61100925C38</string>
+											<string>74B560E11343C6C700925C38</string>
+											<string>74B560E21343C6C700925C38</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -364,14 +425,14 @@
 							<key>GeometryConfiguration</key>
 							<dict>
 								<key>Frame</key>
-								<string>{{0, 0}, {1388, 765}}</string>
+								<string>{{0, 0}, {1388, 767}}</string>
 								<key>RubberWindowFrame</key>
 								<string>0 131 1680 897 0 0 1680 1028 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
 							<key>Proportion</key>
-							<string>765pt</string>
+							<string>767pt</string>
 						</dict>
 						<dict>
 							<key>ContentConfiguration</key>
@@ -384,14 +445,14 @@
 							<key>GeometryConfiguration</key>
 							<dict>
 								<key>Frame</key>
-								<string>{{0, 770}, {1388, 86}}</string>
+								<string>{{0, 772}, {1388, 84}}</string>
 								<key>RubberWindowFrame</key>
 								<string>0 131 1680 897 0 0 1680 1028 </string>
 							</dict>
 							<key>Module</key>
 							<string>XCDetailModule</string>
 							<key>Proportion</key>
-							<string>86pt</string>
+							<string>84pt</string>
 						</dict>
 					</array>
 					<key>Proportion</key>
@@ -410,9 +471,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>74B560EE1343C99000925C38</string>
+				<string>74B55E1E1342875900925C38</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>74B560EF1343C99000925C38</string>
+				<string>74B55E1F1342875900925C38</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
 			</array>
@@ -550,6 +611,11 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
+		<string>74B560E41343C6C700925C38</string>
+		<string>1C530D57069F1CE1000CFCEE</string>
+		<string>74B55E291342875900925C38</string>
+		<string>74B55E2A1342875900925C38</string>
+		<string>1CD10A99069EF8BA00B06720</string>
 		<string>743F77D213354E2300B5BC21</string>
 		<string>/Users/cclaan/projects/iphone/MoreSquare/MoreSquare.xcodeproj</string>
 	</array>
@@ -631,7 +697,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>743F77D213354E2300B5BC21</string>
-				<string>74B560F01343C99000925C38</string>
+				<string>74B55E201342875900925C38</string>
 				<string>1CD0528F0623707200166675</string>
 				<string>XCMainBuildResultsModuleGUID</string>
 			</array>

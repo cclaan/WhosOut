@@ -15,20 +15,23 @@
 @interface AroundMeViewController : UIViewController <UITableViewDelegate, UITableViewDataSource> {
 	
 
-	BOOL isLoading;
+	//BOOL isLoading;
 	
 	float currentYOffset;
 	
-	NSMutableArray * venuesArray;
+	BOOL usersDisplayed;
+	
+	
+	//NSMutableArray * venuesArray;
 	NSMutableArray * venueViews;
 	
-	BOOL isLocating;
+	//BOOL isLocating;
 	
 	int photoIndex;
 	
-	int numberOfVenuesToQuery;
+	//int numberOfVenuesToQuery;
 	
-	MBProgressHUD * hud;
+	//MBProgressHUD * hud;
 	
 	IBOutlet UIScrollView * scrollView;
 	

@@ -36,6 +36,7 @@
 	
 	NSComparisonResult (^_sortByClosestFirst)(id obj1, id obj2);
 	
+	UIView * noFavsView;
 	
 }
 

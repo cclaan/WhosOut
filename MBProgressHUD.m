@@ -208,6 +208,8 @@
     return self;
 }
 
+
+
 - (void)dealloc {
     [indicator release];
     [label release];

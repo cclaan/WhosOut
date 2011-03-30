@@ -34,6 +34,24 @@
 		741CEAC2133FDCCD00386C54 /* map-tab-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 741CEAC0133FDCCD00386C54 /* map-tab-icon.png */; };
 		741CEAC7133FDEB600386C54 /* VenuesMapController.m in Sources */ = {isa = PBXBuildFile; fileRef = 741CEAC5133FDEB600386C54 /* VenuesMapController.m */; };
 		741CEAC8133FDEB600386C54 /* VenuesMapController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 741CEAC6133FDEB600386C54 /* VenuesMapController.xib */; };
+		741CEB0A133FE87200386C54 /* refresh-icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 741CEB08133FE87200386C54 /* refresh-icon@2x.png */; };
+		741CEB0B133FE87200386C54 /* refresh-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 741CEB09133FE87200386C54 /* refresh-icon.png */; };
+		741CEB86133FF28C00386C54 /* map-pin-orange.png in Resources */ = {isa = PBXBuildFile; fileRef = 741CEB85133FF28C00386C54 /* map-pin-orange.png */; };
+		741CEB98133FF3C600386C54 /* flag.png in Resources */ = {isa = PBXBuildFile; fileRef = 741CEB97133FF3C600386C54 /* flag.png */; };
+		741CEBA6133FF46A00386C54 /* head-pin.png in Resources */ = {isa = PBXBuildFile; fileRef = 741CEBA5133FF46A00386C54 /* head-pin.png */; };
+		741CEBBF133FF71C00386C54 /* map-pin-high.png in Resources */ = {isa = PBXBuildFile; fileRef = 741CEBBB133FF71C00386C54 /* map-pin-high.png */; };
+		741CEBC0133FF71C00386C54 /* map-pin-medium-high.png in Resources */ = {isa = PBXBuildFile; fileRef = 741CEBBC133FF71C00386C54 /* map-pin-medium-high.png */; };
+		741CEBC1133FF71C00386C54 /* map-pin-medium.png in Resources */ = {isa = PBXBuildFile; fileRef = 741CEBBD133FF71C00386C54 /* map-pin-medium.png */; };
+		741CEBC2133FF71C00386C54 /* map-pin-low.png in Resources */ = {isa = PBXBuildFile; fileRef = 741CEBBE133FF71C00386C54 /* map-pin-low.png */; };
+		741CEBFF133FFCC800386C54 /* VenuePeopleDetailController.m in Sources */ = {isa = PBXBuildFile; fileRef = 741CEBFD133FFCC800386C54 /* VenuePeopleDetailController.m */; };
+		741CEC00133FFCC800386C54 /* VenuePeopleDetailController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 741CEBFE133FFCC800386C54 /* VenuePeopleDetailController.xib */; };
+		741CED431340113700386C54 /* PickFavoriteVenuesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 741CED411340113700386C54 /* PickFavoriteVenuesController.m */; };
+		741CED441340113700386C54 /* PickFavoriteVenuesController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 741CED421340113700386C54 /* PickFavoriteVenuesController.xib */; };
+		741CED5613401A3000386C54 /* FavoriteUsersController.m in Sources */ = {isa = PBXBuildFile; fileRef = 741CED5413401A3000386C54 /* FavoriteUsersController.m */; };
+		741CED5713401A3000386C54 /* FavoriteUsersController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 741CED5513401A3000386C54 /* FavoriteUsersController.xib */; };
+		741CEDC0134020AD00386C54 /* FSUserCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 741CEDBF134020AD00386C54 /* FSUserCell.m */; };
+		741CEDC21340218D00386C54 /* default-profile-image.png in Resources */ = {isa = PBXBuildFile; fileRef = 741CEDC11340218D00386C54 /* default-profile-image.png */; };
+		7421412F134282730016E71A /* FSFavVenueCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7421412E134282730016E71A /* FSFavVenueCell.m */; };
 		74299DEE133D9FFE00F27F81 /* favs-tab.png in Resources */ = {isa = PBXBuildFile; fileRef = 74299DEA133D9FFE00F27F81 /* favs-tab.png */; };
 		74299DEF133D9FFE00F27F81 /* favs-tab@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 74299DEB133D9FFE00F27F81 /* favs-tab@2x.png */; };
 		74299DF0133D9FFE00F27F81 /* around-tab@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 74299DEC133D9FFE00F27F81 /* around-tab@2x.png */; };
@@ -99,11 +117,17 @@
 		743F7933133577C100B5BC21 /* Icon-Small.png in Resources */ = {isa = PBXBuildFile; fileRef = 743F792C133577C100B5BC21 /* Icon-Small.png */; };
 		743F7934133577C100B5BC21 /* Icon-Small-50.png in Resources */ = {isa = PBXBuildFile; fileRef = 743F792D133577C100B5BC21 /* Icon-Small-50.png */; };
 		743F7935133577C100B5BC21 /* Icon-72.png in Resources */ = {isa = PBXBuildFile; fileRef = 743F792E133577C100B5BC21 /* Icon-72.png */; };
-		743F7936133577C100B5BC21 /* iTunesArtwork.png in Resources */ = {isa = PBXBuildFile; fileRef = 743F792F133577C100B5BC21 /* iTunesArtwork.png */; };
 		743F795213357ACF00B5BC21 /* FSUserButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 743F795113357ACF00B5BC21 /* FSUserButton.m */; };
 		743F79AB1335860000B5BC21 /* settings-button.png in Resources */ = {isa = PBXBuildFile; fileRef = 743F79AA1335860000B5BC21 /* settings-button.png */; };
 		743F7A281335956400B5BC21 /* bar-logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 743F7A261335956400B5BC21 /* bar-logo.png */; };
 		743F7A291335956400B5BC21 /* bar-logo@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 743F7A271335956400B5BC21 /* bar-logo@2x.png */; };
+		74B55F201342A9DB00925C38 /* default-venue-image.png in Resources */ = {isa = PBXBuildFile; fileRef = 74B55F1F1342A9DB00925C38 /* default-venue-image.png */; };
+		74B55F441342B3B600925C38 /* PickFavoriteVenuesControllerB.m in Sources */ = {isa = PBXBuildFile; fileRef = 74B55F421342B3B600925C38 /* PickFavoriteVenuesControllerB.m */; };
+		74B55F451342B3B600925C38 /* PickFavoriteVenuesControllerB.xib in Resources */ = {isa = PBXBuildFile; fileRef = 74B55F431342B3B600925C38 /* PickFavoriteVenuesControllerB.xib */; };
+		74B55FD5134385CE00925C38 /* no-auth-splash.png in Resources */ = {isa = PBXBuildFile; fileRef = 74B55FD3134385CE00925C38 /* no-auth-splash.png */; };
+		74B55FD6134385CE00925C38 /* no-auth-splash@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 74B55FD4134385CE00925C38 /* no-auth-splash@2x.png */; };
+		74B55FEC13438FF100925C38 /* unselected-bar-tab@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 74B55FEA13438FF100925C38 /* unselected-bar-tab@2x.png */; };
+		74B55FED13438FF100925C38 /* selected-bar-tab@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 74B55FEB13438FF100925C38 /* selected-bar-tab@2x.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -142,6 +166,30 @@
 		741CEAC4133FDEB600386C54 /* VenuesMapController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VenuesMapController.h; sourceTree = "<group>"; };
 		741CEAC5133FDEB600386C54 /* VenuesMapController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VenuesMapController.m; sourceTree = "<group>"; };
 		741CEAC6133FDEB600386C54 /* VenuesMapController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = VenuesMapController.xib; sourceTree = "<group>"; };
+		741CEB08133FE87200386C54 /* refresh-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "refresh-icon@2x.png"; path = "images/refresh-icon@2x.png"; sourceTree = "<group>"; };
+		741CEB09133FE87200386C54 /* refresh-icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "refresh-icon.png"; path = "images/refresh-icon.png"; sourceTree = "<group>"; };
+		741CEB85133FF28C00386C54 /* map-pin-orange.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "map-pin-orange.png"; path = "images/map-pin-orange.png"; sourceTree = "<group>"; };
+		741CEB97133FF3C600386C54 /* flag.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = flag.png; sourceTree = "<group>"; };
+		741CEBA5133FF46A00386C54 /* head-pin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "head-pin.png"; sourceTree = "<group>"; };
+		741CEBBB133FF71C00386C54 /* map-pin-high.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "map-pin-high.png"; path = "images/map-pin-high.png"; sourceTree = "<group>"; };
+		741CEBBC133FF71C00386C54 /* map-pin-medium-high.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "map-pin-medium-high.png"; path = "images/map-pin-medium-high.png"; sourceTree = "<group>"; };
+		741CEBBD133FF71C00386C54 /* map-pin-medium.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "map-pin-medium.png"; path = "images/map-pin-medium.png"; sourceTree = "<group>"; };
+		741CEBBE133FF71C00386C54 /* map-pin-low.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "map-pin-low.png"; path = "images/map-pin-low.png"; sourceTree = "<group>"; };
+		741CEBFC133FFCC800386C54 /* VenuePeopleDetailController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VenuePeopleDetailController.h; sourceTree = "<group>"; };
+		741CEBFD133FFCC800386C54 /* VenuePeopleDetailController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VenuePeopleDetailController.m; sourceTree = "<group>"; };
+		741CEBFE133FFCC800386C54 /* VenuePeopleDetailController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = VenuePeopleDetailController.xib; sourceTree = "<group>"; };
+		741CED401340113700386C54 /* PickFavoriteVenuesController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PickFavoriteVenuesController.h; sourceTree = "<group>"; };
+		741CED411340113700386C54 /* PickFavoriteVenuesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PickFavoriteVenuesController.m; sourceTree = "<group>"; };
+		741CED421340113700386C54 /* PickFavoriteVenuesController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PickFavoriteVenuesController.xib; sourceTree = "<group>"; };
+		741CED5313401A3000386C54 /* FavoriteUsersController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FavoriteUsersController.h; sourceTree = "<group>"; };
+		741CED5413401A3000386C54 /* FavoriteUsersController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FavoriteUsersController.m; sourceTree = "<group>"; };
+		741CED5513401A3000386C54 /* FavoriteUsersController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = FavoriteUsersController.xib; sourceTree = "<group>"; };
+		741CEDBE134020AD00386C54 /* FSUserCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSUserCell.h; sourceTree = "<group>"; };
+		741CEDBF134020AD00386C54 /* FSUserCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FSUserCell.m; sourceTree = "<group>"; };
+		741CEDC11340218D00386C54 /* default-profile-image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "default-profile-image.png"; path = "images/default-profile-image.png"; sourceTree = "<group>"; };
+		741CEE411340289800386C54 /* Entitlements.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Entitlements.plist; sourceTree = "<group>"; };
+		7421412D134282730016E71A /* FSFavVenueCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSFavVenueCell.h; sourceTree = "<group>"; };
+		7421412E134282730016E71A /* FSFavVenueCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FSFavVenueCell.m; sourceTree = "<group>"; };
 		74299DEA133D9FFE00F27F81 /* favs-tab.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "favs-tab.png"; path = "images/favs-tab.png"; sourceTree = "<group>"; };
 		74299DEB133D9FFE00F27F81 /* favs-tab@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "favs-tab@2x.png"; path = "images/favs-tab@2x.png"; sourceTree = "<group>"; };
 		74299DEC133D9FFE00F27F81 /* around-tab@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "around-tab@2x.png"; path = "images/around-tab@2x.png"; sourceTree = "<group>"; };
@@ -239,9 +287,9 @@
 		743F779E13354DC400B5BC21 /* NSStringAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSStringAdditions.m; sourceTree = "<group>"; };
 		743F779F13354DC400B5BC21 /* PhotoFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhotoFormatter.h; sourceTree = "<group>"; };
 		743F77A013354DC400B5BC21 /* PhotoFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PhotoFormatter.m; sourceTree = "<group>"; };
-		743F77BC13354DEB00B5BC21 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
-		743F77BD13354DEB00B5BC21 /* FoursquareWebLogin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FoursquareWebLogin.h; sourceTree = "<group>"; };
-		743F77BE13354DEB00B5BC21 /* FoursquareWebLogin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FoursquareWebLogin.m; sourceTree = "<group>"; };
+		743F77BC13354DEB00B5BC21 /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Constants.h; path = ../Classes/Constants.h; sourceTree = "<group>"; };
+		743F77BD13354DEB00B5BC21 /* FoursquareWebLogin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FoursquareWebLogin.h; path = ../Classes/FoursquareWebLogin.h; sourceTree = "<group>"; };
+		743F77BE13354DEB00B5BC21 /* FoursquareWebLogin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FoursquareWebLogin.m; path = ../Classes/FoursquareWebLogin.m; sourceTree = "<group>"; };
 		743F77C813354E0C00B5BC21 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		743F77CC13354E1800B5BC21 /* libxml2.2.7.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.2.7.3.dylib; path = usr/lib/libxml2.2.7.3.dylib; sourceTree = SDKROOT; };
 		743F78021335518A00B5BC21 /* FSVenue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSVenue.h; sourceTree = "<group>"; };
@@ -263,13 +311,21 @@
 		743F792C133577C100B5BC21 /* Icon-Small.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small.png"; sourceTree = "<group>"; };
 		743F792D133577C100B5BC21 /* Icon-Small-50.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-Small-50.png"; sourceTree = "<group>"; };
 		743F792E133577C100B5BC21 /* Icon-72.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Icon-72.png"; sourceTree = "<group>"; };
-		743F792F133577C100B5BC21 /* iTunesArtwork.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iTunesArtwork.png; sourceTree = "<group>"; };
 		743F795013357ACF00B5BC21 /* FSUserButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FSUserButton.h; sourceTree = "<group>"; };
 		743F795113357ACF00B5BC21 /* FSUserButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FSUserButton.m; sourceTree = "<group>"; };
 		743F797613357DDA00B5BC21 /* GeoFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeoFunctions.h; sourceTree = "<group>"; };
 		743F79AA1335860000B5BC21 /* settings-button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "settings-button.png"; path = "images/settings-button.png"; sourceTree = "<group>"; };
 		743F7A261335956400B5BC21 /* bar-logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "bar-logo.png"; path = "images/bar-logo.png"; sourceTree = "<group>"; };
 		743F7A271335956400B5BC21 /* bar-logo@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "bar-logo@2x.png"; path = "images/bar-logo@2x.png"; sourceTree = "<group>"; };
+		74B55F1F1342A9DB00925C38 /* default-venue-image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "default-venue-image.png"; path = "images/default-venue-image.png"; sourceTree = "<group>"; };
+		74B55F411342B3B600925C38 /* PickFavoriteVenuesControllerB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PickFavoriteVenuesControllerB.h; sourceTree = "<group>"; };
+		74B55F421342B3B600925C38 /* PickFavoriteVenuesControllerB.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PickFavoriteVenuesControllerB.m; sourceTree = "<group>"; };
+		74B55F431342B3B600925C38 /* PickFavoriteVenuesControllerB.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PickFavoriteVenuesControllerB.xib; sourceTree = "<group>"; };
+		74B55FD3134385CE00925C38 /* no-auth-splash.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "no-auth-splash.png"; path = "images/no-auth-splash.png"; sourceTree = "<group>"; };
+		74B55FD4134385CE00925C38 /* no-auth-splash@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "no-auth-splash@2x.png"; path = "images/no-auth-splash@2x.png"; sourceTree = "<group>"; };
+		74B55FEA13438FF100925C38 /* unselected-bar-tab@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "unselected-bar-tab@2x.png"; path = "images/unselected-bar-tab@2x.png"; sourceTree = "<group>"; };
+		74B55FEB13438FF100925C38 /* selected-bar-tab@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "selected-bar-tab@2x.png"; path = "images/selected-bar-tab@2x.png"; sourceTree = "<group>"; };
+		74B5608A1343C1CA00925C38 /* WhosOutConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WhosOutConstants.h; path = Classes/WhosOutConstants.h; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* MoreSquare-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "MoreSquare-Info.plist"; plistStructureDefinitionIdentifier = "com.apple.xcode.plist.structure-definition.iphone.info-plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -296,19 +352,22 @@
 		080E96DDFE201D6D7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
-				743F77BC13354DEB00B5BC21 /* Constants.h */,
-				743F77BD13354DEB00B5BC21 /* FoursquareWebLogin.h */,
-				743F77BE13354DEB00B5BC21 /* FoursquareWebLogin.m */,
+				1D3623240D0F684500981E51 /* MoreSquareAppDelegate.h */,
+				1D3623250D0F684500981E51 /* MoreSquareAppDelegate.m */,
 				28C286DF0D94DF7D0034E888 /* AroundMeViewController.h */,
 				28C286E00D94DF7D0034E888 /* AroundMeViewController.m */,
 				741CEA6B133EBE1C00386C54 /* FavoriteVenuesController.h */,
 				741CEA6C133EBE1C00386C54 /* FavoriteVenuesController.m */,
 				741CEA6D133EBE1C00386C54 /* FavoriteVenuesController.xib */,
+				741CED401340113700386C54 /* PickFavoriteVenuesController.h */,
+				741CED411340113700386C54 /* PickFavoriteVenuesController.m */,
+				741CED421340113700386C54 /* PickFavoriteVenuesController.xib */,
+				74B55F411342B3B600925C38 /* PickFavoriteVenuesControllerB.h */,
+				74B55F421342B3B600925C38 /* PickFavoriteVenuesControllerB.m */,
+				74B55F431342B3B600925C38 /* PickFavoriteVenuesControllerB.xib */,
 				741CE993133EA94900386C54 /* SettingsPopupController.h */,
 				741CE994133EA94900386C54 /* SettingsPopupController.m */,
 				741CE995133EA94900386C54 /* SettingsPopupController.xib */,
-				1D3623240D0F684500981E51 /* MoreSquareAppDelegate.h */,
-				1D3623250D0F684500981E51 /* MoreSquareAppDelegate.m */,
 				741CE96E133E890800386C54 /* UserDetailController.h */,
 				741CE96F133E890800386C54 /* UserDetailController.m */,
 				741CE970133E890800386C54 /* UserDetailController.xib */,
@@ -318,6 +377,16 @@
 				74299E2E133DAD1600F27F81 /* VenueDetailController.h */,
 				74299E2F133DAD1600F27F81 /* VenueDetailController.m */,
 				74299E30133DAD1600F27F81 /* VenueDetailController.xib */,
+				741CEBFC133FFCC800386C54 /* VenuePeopleDetailController.h */,
+				741CEBFD133FFCC800386C54 /* VenuePeopleDetailController.m */,
+				741CEBFE133FFCC800386C54 /* VenuePeopleDetailController.xib */,
+				741CED5313401A3000386C54 /* FavoriteUsersController.h */,
+				741CED5413401A3000386C54 /* FavoriteUsersController.m */,
+				741CED5513401A3000386C54 /* FavoriteUsersController.xib */,
+				741CEDBE134020AD00386C54 /* FSUserCell.h */,
+				741CEDBF134020AD00386C54 /* FSUserCell.m */,
+				7421412D134282730016E71A /* FSFavVenueCell.h */,
+				7421412E134282730016E71A /* FSFavVenueCell.m */,
 				74299EE1133DB4CC00F27F81 /* VenueAnnotation.h */,
 				74299EE2133DB4CC00F27F81 /* VenueAnnotation.m */,
 				7429A01D133E7C4A00F27F81 /* Model + DB */,
@@ -355,6 +424,7 @@
 		29B97315FDCFA39411CA2CEA /* Other Sources */ = {
 			isa = PBXGroup;
 			children = (
+				74B5608A1343C1CA00925C38 /* WhosOutConstants.h */,
 				7429A039133E7F6A00F27F81 /* Reachability */,
 				743F775B13354DC400B5BC21 /* Foursquare2 */,
 				743F774513354DB700B5BC21 /* EGO */,
@@ -379,11 +449,11 @@
 				743F792C133577C100B5BC21 /* Icon-Small.png */,
 				743F792D133577C100B5BC21 /* Icon-Small-50.png */,
 				743F792E133577C100B5BC21 /* Icon-72.png */,
-				743F792F133577C100B5BC21 /* iTunesArtwork.png */,
 				743F79231335751D00B5BC21 /* image */,
 				28F335F01007B36200424DE2 /* RootViewController.xib */,
 				28AD735F0D9D9599002E5188 /* MainWindow.xib */,
 				8D1107310486CEB800E47090 /* MoreSquare-Info.plist */,
+				741CEE411340289800386C54 /* Entitlements.plist */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -473,6 +543,9 @@
 				743F776013354DC400B5BC21 /* HTTPRiot */,
 				743F779F13354DC400B5BC21 /* PhotoFormatter.h */,
 				743F77A013354DC400B5BC21 /* PhotoFormatter.m */,
+				743F77BC13354DEB00B5BC21 /* Constants.h */,
+				743F77BD13354DEB00B5BC21 /* FoursquareWebLogin.h */,
+				743F77BE13354DEB00B5BC21 /* FoursquareWebLogin.m */,
 				743F78A213355BA700B5BC21 /* FSObjects.h */,
 				743F78071335521A00B5BC21 /* FSUser.h */,
 				743F78081335521A00B5BC21 /* FSUser.m */,
@@ -618,6 +691,21 @@
 		743F79231335751D00B5BC21 /* image */ = {
 			isa = PBXGroup;
 			children = (
+				74B55FEA13438FF100925C38 /* unselected-bar-tab@2x.png */,
+				74B55FEB13438FF100925C38 /* selected-bar-tab@2x.png */,
+				74B55FD3134385CE00925C38 /* no-auth-splash.png */,
+				74B55FD4134385CE00925C38 /* no-auth-splash@2x.png */,
+				74B55F1F1342A9DB00925C38 /* default-venue-image.png */,
+				741CEDC11340218D00386C54 /* default-profile-image.png */,
+				741CEBBB133FF71C00386C54 /* map-pin-high.png */,
+				741CEBBC133FF71C00386C54 /* map-pin-medium-high.png */,
+				741CEBBD133FF71C00386C54 /* map-pin-medium.png */,
+				741CEBBE133FF71C00386C54 /* map-pin-low.png */,
+				741CEBA5133FF46A00386C54 /* head-pin.png */,
+				741CEB97133FF3C600386C54 /* flag.png */,
+				741CEB85133FF28C00386C54 /* map-pin-orange.png */,
+				741CEB08133FE87200386C54 /* refresh-icon@2x.png */,
+				741CEB09133FE87200386C54 /* refresh-icon.png */,
 				741CEABF133FDCCD00386C54 /* map-tab-icon@2x.png */,
 				741CEAC0133FDCCD00386C54 /* map-tab-icon.png */,
 				741CEAB6133FDBBD00386C54 /* fav-people-tab-icon@2x.png */,
@@ -700,7 +788,6 @@
 				743F7933133577C100B5BC21 /* Icon-Small.png in Resources */,
 				743F7934133577C100B5BC21 /* Icon-Small-50.png in Resources */,
 				743F7935133577C100B5BC21 /* Icon-72.png in Resources */,
-				743F7936133577C100B5BC21 /* iTunesArtwork.png in Resources */,
 				743F79AB1335860000B5BC21 /* settings-button.png in Resources */,
 				743F7A281335956400B5BC21 /* bar-logo.png in Resources */,
 				743F7A291335956400B5BC21 /* bar-logo@2x.png in Resources */,
@@ -724,6 +811,25 @@
 				741CEAC1133FDCCD00386C54 /* map-tab-icon@2x.png in Resources */,
 				741CEAC2133FDCCD00386C54 /* map-tab-icon.png in Resources */,
 				741CEAC8133FDEB600386C54 /* VenuesMapController.xib in Resources */,
+				741CEB0A133FE87200386C54 /* refresh-icon@2x.png in Resources */,
+				741CEB0B133FE87200386C54 /* refresh-icon.png in Resources */,
+				741CEB86133FF28C00386C54 /* map-pin-orange.png in Resources */,
+				741CEB98133FF3C600386C54 /* flag.png in Resources */,
+				741CEBA6133FF46A00386C54 /* head-pin.png in Resources */,
+				741CEBBF133FF71C00386C54 /* map-pin-high.png in Resources */,
+				741CEBC0133FF71C00386C54 /* map-pin-medium-high.png in Resources */,
+				741CEBC1133FF71C00386C54 /* map-pin-medium.png in Resources */,
+				741CEBC2133FF71C00386C54 /* map-pin-low.png in Resources */,
+				741CEC00133FFCC800386C54 /* VenuePeopleDetailController.xib in Resources */,
+				741CED441340113700386C54 /* PickFavoriteVenuesController.xib in Resources */,
+				741CED5713401A3000386C54 /* FavoriteUsersController.xib in Resources */,
+				741CEDC21340218D00386C54 /* default-profile-image.png in Resources */,
+				74B55F201342A9DB00925C38 /* default-venue-image.png in Resources */,
+				74B55F451342B3B600925C38 /* PickFavoriteVenuesControllerB.xib in Resources */,
+				74B55FD5134385CE00925C38 /* no-auth-splash.png in Resources */,
+				74B55FD6134385CE00925C38 /* no-auth-splash@2x.png in Resources */,
+				74B55FEC13438FF100925C38 /* unselected-bar-tab@2x.png in Resources */,
+				74B55FED13438FF100925C38 /* selected-bar-tab@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -788,6 +894,12 @@
 				741CE996133EA94900386C54 /* SettingsPopupController.m in Sources */,
 				741CEA6E133EBE1C00386C54 /* FavoriteVenuesController.m in Sources */,
 				741CEAC7133FDEB600386C54 /* VenuesMapController.m in Sources */,
+				741CEBFF133FFCC800386C54 /* VenuePeopleDetailController.m in Sources */,
+				741CED431340113700386C54 /* PickFavoriteVenuesController.m in Sources */,
+				741CED5613401A3000386C54 /* FavoriteUsersController.m in Sources */,
+				741CEDC0134020AD00386C54 /* FSUserCell.m in Sources */,
+				7421412F134282730016E71A /* FSFavVenueCell.m in Sources */,
+				74B55F441342B3B600925C38 /* PickFavoriteVenuesControllerB.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -798,6 +910,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_ENTITLEMENTS = "~/projects/iphone/MoreSquare/Entitlements.plist";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -814,6 +927,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_ENTITLEMENTS = "~/projects/iphone/MoreSquare/Entitlements.plist";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = MoreSquare_Prefix.pch;
@@ -822,6 +936,39 @@
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
+		};
+		741CEE33134027E100386C54 /* Adhoc */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Laan Consulting Corp";
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				PREBINDING = NO;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "9615B7A4-7036-4F85-8528-A77CE51AA978";
+				SDKROOT = iphoneos;
+			};
+			name = Adhoc;
+		};
+		741CEE34134027E100386C54 /* Adhoc */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CODE_SIGN_ENTITLEMENTS = "~/projects/iphone/MoreSquare/Entitlements.plist";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Laan Consulting Corp";
+				COPY_PHASE_STRIP = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = MoreSquare_Prefix.pch;
+				HEADER_SEARCH_PATHS = "/usr/include/libxml2/**";
+				INFOPLIST_FILE = "MoreSquare-Info.plist";
+				OTHER_LDFLAGS = "-lxml2";
+				PRODUCT_NAME = MoreSquare;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "4F382405-9CCF-4378-B128-CBA6466F5A1F";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Adhoc;
 		};
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -840,12 +987,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution: Laan Consulting Corp";
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				PREBINDING = NO;
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "9615B7A4-7036-4F85-8528-A77CE51AA978";
 				SDKROOT = iphoneos;
 			};
 			name = Release;
@@ -858,6 +1006,7 @@
 			buildConfigurations = (
 				1D6058940D05DD3E006BFB54 /* Debug */,
 				1D6058950D05DD3E006BFB54 /* Release */,
+				741CEE34134027E100386C54 /* Adhoc */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -867,6 +1016,7 @@
 			buildConfigurations = (
 				C01FCF4F08A954540054247B /* Debug */,
 				C01FCF5008A954540054247B /* Release */,
+				741CEE33134027E100386C54 /* Adhoc */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

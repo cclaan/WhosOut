@@ -10,6 +10,8 @@
 #import <MapKit/MKAnnotation.h>
 #import "VenueAnnotation.h"
 #import "Locator.h"
+#import "MBProgressHUD.h"
+#import "Foursquare2.h"
 
 #import "NSString+EscapingUtils.h"
 
@@ -237,6 +239,69 @@
 		
 			
 	}
+	
+}
+
+-(IBAction) checkinClicked {
+	
+	/*
+	broadcastPrivate,
+	broadcastPublic,
+	broadcastFacebook,
+	broadcastTwitter,
+	broadcastBoth
+	*/
+	
+	//
+	
+	UIAlertView * al = [[UIAlertView alloc] initWithTitle:@"Are you sure?" message:[NSString stringWithFormat:@"Do you want to publicly check in at %@",venue.name] delegate:self cancelButtonTitle:@"No" otherButtonTitles:@"Yes",nil];
+	[al show];
+	[al release];
+							
+	
+
+	
+	
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+
+{
+	
+	
+	if ( buttonIndex == 1 ) 
+		
+	{
+		
+		MBProgressHUD * hud = [[MBProgressHUD alloc] initWithView:self.view];
+		hud.labelText  = @"Checking In..";
+		[hud show:YES];
+		[hud release];
+		
+		NSString * latString = [NSString stringWithFormat:@"%f", venue.lat];
+		NSString * lngString = [NSString stringWithFormat:@"%f", venue.lng];
+		
+		[Foursquare2 createCheckinAtVenue:self.venue.venueId venue:self.venue.name shout:nil broadcast:broadcastPublic latitude:latString longitude:lngString accuracyLL:nil altitude:nil accuracyAlt:nil callback:^(BOOL success,id result){
+			
+			//NSLog(@"resu %@ ", result );
+			
+			[hud hide:YES];
+			
+			if ( success ) {
+				
+				UIAlertView * al = [[UIAlertView alloc] initWithTitle:@"Checked In" message:[NSString stringWithFormat:@"You are checked in to %@",venue.name] delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+				[al show];
+				[al release];
+				
+				
+			}
+			
+		}];
+		
+		
+	}
+	
+	
 	
 }
 

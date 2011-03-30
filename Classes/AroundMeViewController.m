@@ -7,7 +7,7 @@
 //
 
 #import "AroundMeViewController.h"
-#import "Locator.h"
+//#import "Locator.h"
 
 #import "EGOImageView.h"
 #import "VenueCell.h"
@@ -23,7 +23,7 @@
 
 @interface AroundMeViewController()
 
--(void) setLoading:(BOOL)loading withMessage:(NSString*)msg;
+//-(void) setLoading:(BOOL)loading withMessage:(NSString*)msg;
 
 @end
 
@@ -47,10 +47,16 @@
 	//self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Ω" style:UIBarButtonItemStylePlain target:self action:@selector(settingsClicked)];
 	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"settings-bar-button.png"] style:UIBarButtonItemStylePlain target:self action:@selector(settingsClicked)];
 	
+	self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"refresh-icon.png"] style:UIBarButtonItemStylePlain target:self action:@selector(refreshClicked)];
+	
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(genderPrefChanged) name:kGenderChangedNotification object:nil];
 	
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(displayVenues) name:kVenuesUpdatedNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(venuesUpdateStarted) name:kVenuesUpdateStartedNotification object:nil];	
 	
-
+	if ( !venueViews ) {
+		venueViews = [[NSMutableArray alloc] init];
+	}
 	
 }
 
@@ -63,19 +69,59 @@
 -(void) viewWillAppear:(BOOL)animated {
 
 	
+	
+	
+	
+}
+
+-(void) viewDidAppear:(BOOL)animated {
+	
 	if ( [Foursquare2 isNeedToAuthorize]) {
 		
 		return;
 		
-	//} else if ( !isLoading && (venuesArray ==nil || ([venuesArray count] ==0) ) ) {
-	} else if ( ![Model instance].isLoading && ([Model instance].venuesArray ==nil || ([[Model instance].venuesArray count] ==0) ) ) {	
+		//} else if ( !isLoading && (venuesArray ==nil || ([venuesArray count] ==0) ) ) {
+	} else if ( ![Model instance].isLoadingNearbyVenues && ([Model instance].venuesArray ==nil || ([[Model instance].venuesArray count] ==0) ) ) {	
 		
 		//[self startLocation];
 		[[Model instance] startLocationAndFindNearbyVenues];
 		
+	} else if (![Model instance].isLoadingNearbyVenues && !usersDisplayed ) {
+		
+		[self displayVenues];
+		
 	}
 	
 }
+
+/*
+-(void) viewWillAppear:(BOOL)animated {
+	
+	NSLog(@"will appear");
+	
+	if ( [Foursquare2 isNeedToAuthorize]) {
+		
+		return;
+		
+	} else if ( !isLoading && (venuesArray ==nil || ([venuesArray count] ==0) || ([Model instance].favoritesAreOutOfDate )) ) {
+		
+		if ( [[Model instance].favoriteVenues count] == 0 ) { 
+			
+			[self showNoFavs];
+			return; 
+			
+		} else {
+			[self hideNoFavs];
+		}
+		
+		[self startLocation];
+		
+	}
+	
+}
+*/
+
+
 
 -(void) viewWillDisappear:(BOOL)animated {
 	
@@ -86,7 +132,21 @@
 
 -(void) genderPrefChanged {
 	
-	[self refreshClicked];
+	
+	[venueViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+	
+	scrollView.contentOffset = CGPointMake(0, 0);
+	
+	[venueViews removeAllObjects];
+	[venueViews release];
+	
+	venueViews = [[NSMutableArray alloc] init];
+	
+	currentYOffset = 0;
+	
+	//[self refreshClicked];
+	[self displayVenues];
+	
 	
 }
 
@@ -95,14 +155,10 @@
 
 -(IBAction) refreshClicked {
 	
-	if ( isLoading ) { return; }
+	if ( [Model instance].isLoadingNearbyVenues ) { return; }
 	
-	[self startLocation];
-	
-	//[self setLoading:YES withMessage:@"Refreshing..."];
-	//[self findPeople];
-	
-	
+	[[Model instance] startLocationAndFindNearbyVenues];
+		
 }
 
 -(IBAction) settingsClicked {
@@ -113,206 +169,6 @@
 	
 	[self presentModalViewController:settingsController animated:YES];
 	[settingsController release];
-	
-	
-}
-
-#pragma mark -
-
--(void) startLocation {
-	
-	isLocating = YES;
-	
-	[self setLoading:YES withMessage:@"Locating..."];
-	
-	[Locator instance].currentDesiredAccuracy = 1500;
-	[Locator instance].location = nil;
-	[[Locator instance] start];
-	
-	[self performSelector:@selector(locationLoop) withObject:nil afterDelay:0.9];
-	
-}
-
-
--(void) locationLoop {
-	
-	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(locationLoop) object:nil];
-	
-	if ( [Locator instance].hasReceivedLocation || [Locator instance].hasReceivedError ) {
-		
-		CLLocation * loc;
-		
-		if ( [Locator instance].hasReceivedError ) {
-			
-			//[self stopLoading];
-			
-			isLocating = NO;
-			
-			//ALERT
-			UIAlertView * al = [[UIAlertView alloc] initWithTitle:@"Error" message:@"We could not locate you. Being indoors can degrade location accuracy." delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil];
-			[al show];
-			[al release];
-			
-			return;
-			
-		} else {
-			
-			isLocating = NO;
-			
-			//[self stopLoading];
-			
-			[self findPeople];
-						
-		}
-		
-	} else {
-		
-		[self performSelector:@selector(locationLoop) withObject:nil afterDelay:0.5];
-		
-	}
-
-	
-}
-
--(void) stopLoading {
-	
-	isLoading = NO;
-	
-	if ( hud && [hud superview] ) {
-		
-		[hud hide:YES];
-		
-	}
-	
-}
-
--(void) setLoading:(BOOL)loading withMessage:(NSString*)msg {
-		
-	isLoading = loading;
-	
-	if ( loading ) {
-		
-		if ( !hud ) {
-			
-			hud = [[MBProgressHUD alloc] initWithView:self.parentViewController.view];
-			[self.parentViewController.view addSubview:hud];
-			
-		}
-		
-		hud.labelText = msg;    
-		[hud show:YES];
-		
-	
-	} else {
-		
-		if ( hud && [hud superview] ) {
-			
-			[hud hide:YES];
-			
-		}
-	}
-	
-}
-
--(void) showApiError {
-	
-	UIAlertView * al = [[UIAlertView alloc] initWithTitle:@"Oops" message:@"The internet isn't behaving, please try again later!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-	[al show];
-	[al release];
-	
-	[self stopLoading];
-	
-
-	
-}
-
-
-
--(void) findPeople {
-	
-	
-	//loc = [Locator instance].location;
-	
-	//NSLog(@"Got location: %@ " , [Locator instance].latString );
-	
-	//[Foursquare2 searchVenuesNearByLatitude:[Locator instance].latString longitude:[Locator instance].lonString accuracyLL:@"5000" altitude:nil accuracyAlt:nil query:@"" limit:@"200" intent:nil callback:^(BOOL success,id result){
-	
-	hud.labelText = @"Looking...";
-	
-	
-	[venueViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
-	
-	scrollView.contentOffset = CGPointMake(0, 0);
-	
-	[venueViews removeAllObjects];
-	[venueViews release];
-	venueViews = [[NSMutableArray alloc] init];
-	currentYOffset = 0;
-	
-	[venuesArray removeAllObjects];
-	[venuesArray release];
-	venuesArray = nil;
-	
-	[Foursquare2 getTrendingVenuesNearByLatitude:[Locator instance].latString longitude:[Locator instance].lonString radius:@"5000" limit:@"50" callback:^(BOOL success,id result){
-		
-		
-		if ( !success ) {
-			
-			[self performSelectorOnMainThread:@selector(showApiError) withObject:nil waitUntilDone:YES];			
-			return;
-		}
-		
-		//NSLog(@"got stuff: %@ , %@ " , result , [result class]);
-		
-		NSArray * tempVenues = [[result objectForKey:@"response"] objectForKey:@"venues"];
-		
-		tempVenues = [FSVenue venueArrayFromJson:tempVenues];
-		
-		venuesArray = [[NSMutableArray alloc] init];
-		
-		numberOfVenuesToQuery = [tempVenues count];
-		
-		for (FSVenue * ven in tempVenues) {
-			
-			//NSLog(@"Name: %@ " , ven.name );
-			
-			[Foursquare2 getDetailForVenue:ven.venueId callback:^(BOOL success, id result2){
-				
-				if ( !success ) return;
-				
-				FSVenue * venue = [FSVenue venueFromJson:[[result2 objectForKey:@"response"] objectForKey:@"venue"]];
-				[venuesArray addObject:venue];
-				
-				CLLocationCoordinate2D loc = [Locator instance].location.coordinate;
-				
-				double myLat = loc.latitude;
-				double myLng = loc.longitude;
-				
-				//venue.distanceFromMe = sqrt( (venue.lat-myLat)*(venue.lat-myLat) + (venue.lng-myLng)*(venue.lng-myLng) );
-				
-				venue.distanceFromMe = geo_distance(venue.lat, venue.lng, myLat, myLng, 'M');
-				
-				
-				NSLog(@"venue: %@ , people there: %i , lat: %f , dist: %f " , venue.name , [venue.peopleHere count] , venue.lat , venue.distanceFromMe );
-				
-				//[self performSelectorOnMainThread:@selector(showUsersFromVenue:) withObject:venue waitUntilDone:NO];	
-				
-				//[self performSelectorOnMainThread:@selector(delayedReloadTable) withObject:nil waitUntilDone:NO];	
-				
-				[self performSelectorOnMainThread:@selector(delayedDisplayVenues) withObject:nil waitUntilDone:NO];	
-				
-				
-			}];
-			
-			
-		}
-		
-		
-		
-	}];
-	
-	
-	
 	
 	
 }
@@ -335,17 +191,33 @@
 	
 }
 
+-(void) venuesUpdateStarted {
+	
+	[venueViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+	
+	scrollView.contentOffset = CGPointMake(0, 0);
+	
+	[venueViews removeAllObjects];
+	[venueViews release];
+	
+	venueViews = [[NSMutableArray alloc] init];
+	
+	currentYOffset = 0;
+
+	
+}
+
 -(void) displayVenues {
 	
-	NSLog(@"num: %i , count: %i " , numberOfVenuesToQuery , [venuesArray count] );
+	NSArray * venuesArray = [Model instance].venuesArray;
 	
-	if ( [venuesArray count] == numberOfVenuesToQuery ) {
-		[self stopLoading];
-	}
+
 	
-	NSLog(@"DISPLAY");
+	//scrollView.contentOffset = CGPointMake(0, 0);
 	
-	[self sortVenuesByDistance];
+	NSLog(@"DISPLAY VENUES, w: %f , h: %f" , scrollView.frame.size.width, scrollView.frame.size.height );
+	
+	//[self sortVenuesByDistance];
 	
 	currentYOffset = 0;
 	
@@ -355,17 +227,21 @@
 		
 	}
 	
+	usersDisplayed = YES;
 	
 }
 
+/*
 -(void) sortVenuesByDistance {
 		
+	NSArray * venuesArray = [Model instance].venuesArray;
 	
 	[venuesArray sortUsingComparator:_sortByClosestFirst];
 	
 	
 	
 }
+*/
 
 -(void) showUsersFromVenue:(FSVenue*)ven {
 	
@@ -415,7 +291,7 @@
 		heightOfView = 64 + ceil( (float)ven.numGirlsHereWithPhotos / 2.0 ) * 154;
 	}
 	
-	
+	NSLog(@"height: %f , yOff: %f , " , heightOfView , currentYOffset );
 	
 	venView.frame = CGRectMake(0, currentYOffset, self.view.frame.size.width, heightOfView );
 	
@@ -506,6 +382,8 @@
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
 	
+	NSArray * venuesArray = [Model instance].venuesArray;
+	
 	FSVenue * ven = [venuesArray objectAtIndex:indexPath.row];
 	
 	return ven.contentHeightForCell;
@@ -517,7 +395,9 @@
 // Customize the number of rows in the table view.
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     
-	if ( isLoading ) {
+	NSArray * venuesArray = [Model instance].venuesArray;
+	
+	if ( [Model instance].isLoadingNearbyVenues ) {
 		
 		return 0;	
 		
@@ -532,6 +412,8 @@
 // Customize the appearance of table view cells.
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     
+	NSArray * venuesArray = [Model instance].venuesArray;
+	
     static NSString *CellIdentifier = @"VenueCell";
     
     VenueCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];

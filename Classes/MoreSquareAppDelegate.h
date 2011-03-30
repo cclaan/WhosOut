@@ -8,12 +8,16 @@
 
 #import <UIKit/UIKit.h>
 #import "Foursquare2.h"
+#import "WhosOutConstants.h"
+
 
 @interface MoreSquareAppDelegate : NSObject <UIApplicationDelegate> {
     
     UIWindow *window;
-    UINavigationController *navigationController;
+    IBOutlet UINavigationController * randomNavigationController;
 	UITabBarController * tabController;
+	
+	UIView * splashView;
 	
 }
 

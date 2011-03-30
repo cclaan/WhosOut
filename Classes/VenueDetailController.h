@@ -33,5 +33,6 @@
 -(IBAction) favoriteClicked;
 -(IBAction) getDirectionsClicked;
 -(IBAction) callClicked;
+-(IBAction) checkinClicked;
 
 @end

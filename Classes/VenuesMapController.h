@@ -21,6 +21,7 @@
 	IBOutlet UIBarButtonItem * favoriteButton;
 	IBOutlet UIBarButtonItem * callButton;
 	
+	BOOL venuesDisplayed;
 	
 }
 
