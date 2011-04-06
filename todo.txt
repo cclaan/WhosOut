@@ -1,0 +1,74 @@
+Limit nearby to some number of calls? 
+ - load more pull up ?
+
+make range work
+
+nice no venues / map / favs views
+
+sections on tableview
+
+design a few things for overall appearance
+
+fav people get twitter / FSQ ? -- at least # checkins or friends.. or take it out ?
+
+do some 3G testing for NYC and other spots 
+
+-----
+
+
+Take out fav people? or make it a friends tab  ?
+ - i think its OK since we're querying a lot of venues.
+ - clearly explain it ? -- or make it pending requests ?
+
+limit for if there's 500 venues , or 500 people at an event... sort people too ?
+
+make range slider work?
+ - see if changing range affects the API results, if not, just re-display and filter the results
+
+nice views for no venues / map / favs
+
+///loading fav venues and nearby uses 2 HUDs.. make requests cancellable ? or use one HUD ?
+
+Fav venues got totally fucked up when messing with girls/guys and Categories
+ - remove from superviews
+
+unify favVenues and nearby into one call loop ... notify for when done getting favs, and nearby.
+ - fixes HUD issue , 
+ - might cut down on total calls if some are dupes
+ 
+ make a timeRefreshed on the FSVenue, then once unified, refresh every now and again,
+  - expire venues even if data is populated... if people are checking in you want it to be fresh.
+ the loading portion can be for each tab depending on model.isFavoritesLoading ? 
+
+
+show favs on map if nearby ?
+
+Pick Favs Controller:
+ - sections for table view 
+ - get all data initially so type filtering works better 
+
+
+
+///cover case where venue has the data, but needs to be displayed
+
+///maybe unify Model.favoriteVenues with favoritesController.venuesArray.. they should be the same right ?
+
+
+/// - filter typing last cell is funky--- need 'Search Online Cell'
+/// - some metadata like dist or address ?  
+//// - design some temp tabs
+/// - show what are already favs... 
+/// - show 'Add' button -- or a plus ?
+
+////no auth state for cancelled,, just one big screen ?
+
+//// logout of foursquare in settings
+
+////auth pop-up, put bar at bottom, use HUD when loading 
+
+//// gender pref doesnt need reload network , just display again
+
+
+
+
+
