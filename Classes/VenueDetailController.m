@@ -12,6 +12,7 @@
 #import "Locator.h"
 #import "MBProgressHUD.h"
 #import "Foursquare2.h"
+#import "Model.h"
 
 #import "NSString+EscapingUtils.h"
 
@@ -66,11 +67,13 @@
 	
 	mapView.showsUserLocation = YES;
 	
+	categoryImageView.placeholderImage = [UIImage imageNamed:@"default-venue-image.png"];
 	
 	if ( self.venue ) {
 		
 		VenueAnnotation * venueAnno = [[VenueAnnotation alloc] init];
 		venueAnno.venue = self.venue;
+		venueAnno.canShowDetails = NO;
 		[mapView addAnnotation:venueAnno];
 		
 		
@@ -84,22 +87,39 @@
 		
 		[mapView setRegion:newRegion animated:YES];
 		
+		if ( venue.primaryCategory ) {
+			infoLabel.text = venue.primaryCategory.name;
+			subLabel.text = venue.primaryCategory.parent.name;
+			if ( venue.primaryCategory.iconUrl ) {
+				//[categoryImageView setImageURL:[NSURL URLWithString:venue.primaryCategory.iconUrl]];
+				categoryImageView.imageURL = [NSURL URLWithString:venue.primaryCategory.iconUrl];
+			}
+			
+			filterButton.hidden = NO;
+		} else {
+			infoLabel.text = @"Uncategorized";
+			subLabel.text = @"No Category for this Place";
+			categoryImageView.imageURL = nil;
+			//filterButton.hidden = YES;
+		}
 		
 		if ( venue.phone != nil ) {
-			
 			callButton.enabled = YES;
-			
 		} else {
 			callButton.enabled = NO;
 		}	
 		
 		if ( venue.isLocalFavorite ) {
 			
-			[favoriteButton setTitle:@"Unfavorite"];
+			//[favoriteButton setTitle:@"Unfavorite"];
+			[favoriteButton setImage:[UIImage imageNamed:@"unfavorite-icon.png"] forState:UIControlStateNormal];
 			
 		} else {
-			[favoriteButton setTitle:@"Mark Favorite"];
+			//[favoriteButton setTitle:@"Favorite"];
+			[favoriteButton setImage:[UIImage imageNamed:@"favorite-icon.png"] forState:UIControlStateNormal];
 		}
+		
+		[self refreshButtonTitle];
 			
 		
 	
@@ -135,12 +155,12 @@
             //  - (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control;
             //
 			
-            UIButton* rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
+            /*UIButton* rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
             [rightButton addTarget:self
                             action:@selector(showDetails:)
                   forControlEvents:UIControlEventTouchUpInside];
             customPinView.rightCalloutAccessoryView = rightButton;
-			
+			*/
 			
             return customPinView;
         }
@@ -164,6 +184,31 @@
 
 #pragma mark Buttons Actions
 
+-(IBAction) filterClicked {
+	
+	if ( ![[Model instance] isBannedCategory:self.venue.primaryCategory.parent] ) {
+		
+		[[Model instance] addBannedCategory:self.venue.primaryCategory.parent];
+		
+	} else {
+		
+		[[Model instance] removeBannedCategory:self.venue.primaryCategory.parent];
+		
+	}
+	
+	[self refreshButtonTitle];
+	
+}
+
+-(void) refreshButtonTitle {
+	
+	if ( ![[Model instance] isBannedCategory:self.venue.primaryCategory.parent] ) {
+		[filterButton setTitle:@"hide similar venues" forState:UIControlStateNormal];
+	} else {
+		[filterButton setTitle:@"show similar venues" forState:UIControlStateNormal];
+	}
+}
+
 -(IBAction) favoriteClicked {
 	
 	
@@ -174,9 +219,11 @@
 	}
 	
 	if ( venue.isLocalFavorite ) {
-		[favoriteButton setTitle:@"Unfavorite"];
+		//[favoriteButton setTitle:@"Unfavorite"];
+		[favoriteButton setImage:[UIImage imageNamed:@"unfavorite-icon.png"] forState:UIControlStateNormal];
 	} else {
-		[favoriteButton setTitle:@"Mark Favorite"];
+		//[favoriteButton setTitle:@"Favorite"];
+		[favoriteButton setImage:[UIImage imageNamed:@"favorite-icon.png"] forState:UIControlStateNormal];
 	}
 	
 	
@@ -184,6 +231,16 @@
 
 -(IBAction) getDirectionsClicked {
 	
+	UIAlertView * al = [[UIAlertView alloc] initWithTitle:@"Leave App?" message:@"Directions uses the Google Maps Application" delegate:self cancelButtonTitle:@"No" otherButtonTitles:@"Yes",nil];
+	al.tag = 2967;
+	[al show];
+	[al release];
+	
+	
+}
+
+-(void) doDirections {
+		
 	Locator * loc = [Locator instance];
 	
 	NSString * myLocString = [NSString stringWithFormat:@"%@,%@" , loc.latString , loc.lonString ];
@@ -211,7 +268,7 @@
 	NSString* urlString = [NSString stringWithFormat:@"http://maps.google.com/maps?saddr=%@&daddr=%@" , myLocString , destString ];
 	
 	[[UIApplication sharedApplication] openURL:[NSURL URLWithString: urlString]];
-	
+
 	
 }
 
@@ -255,6 +312,7 @@
 	//
 	
 	UIAlertView * al = [[UIAlertView alloc] initWithTitle:@"Are you sure?" message:[NSString stringWithFormat:@"Do you want to publicly check in at %@",venue.name] delegate:self cancelButtonTitle:@"No" otherButtonTitles:@"Yes",nil];
+	al.tag = 5543;
 	[al show];
 	[al release];
 							
@@ -269,7 +327,7 @@
 {
 	
 	
-	if ( buttonIndex == 1 ) 
+	if ( buttonIndex == 1 && alertView.tag == 5543 ) 
 		
 	{
 		
@@ -298,6 +356,10 @@
 			
 		}];
 		
+		
+	} else if ( buttonIndex == 1 && alertView.tag == 2967 )  {
+	
+		[self doDirections];
 		
 	}
 	

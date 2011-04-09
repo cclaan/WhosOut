@@ -60,6 +60,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 	
+	self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"custom-navbar-logo.png"]];
 	
 	//self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSave target:self action:nil];
 	//self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Fav" style:UIBarButtonItemStylePlain target:self action:nil];
@@ -79,10 +80,12 @@
 		
 		if ( venue.isLocalFavorite ) {
 			
-			[favoriteButton setTitle:@"Unfavorite"];
+			//[favoriteButton setTitle:@"Unfavorite"];
+			[favoriteButton setImage:[UIImage imageNamed:@"unfavorite-icon.png"] forState:UIControlStateNormal];
 			
 		} else {
-			[favoriteButton setTitle:@"Mark Favorite"];
+			//[favoriteButton setTitle:@"Favorite"];
+			[favoriteButton setImage:[UIImage imageNamed:@"favorite-icon.png"] forState:UIControlStateNormal];
 		}
 			
 	
@@ -93,6 +96,7 @@
 		
 		venueView = [[VenueView alloc] init];
 		//venView.genderPreference = pref;
+		venueView.isFullPageVenue = YES;
 		venueView.venue = self.venue;
 		venueView.delegate = self;
 		
@@ -159,9 +163,11 @@
 	}
 	
 	if ( venue.isLocalFavorite ) {
-		[favoriteButton setTitle:@"Unfavorite"];
+		//[favoriteButton setTitle:@"Unfavorite"];
+		[favoriteButton setImage:[UIImage imageNamed:@"unfavorite-icon.png"] forState:UIControlStateNormal];
 	} else {
-		[favoriteButton setTitle:@"Mark Favorite"];
+		//[favoriteButton setTitle:@"Favorite"];
+		[favoriteButton setImage:[UIImage imageNamed:@"favorite-icon.png"] forState:UIControlStateNormal];
 	}
 	
 	
@@ -169,6 +175,17 @@
 
 -(IBAction) getDirectionsClicked {
 	
+	
+	UIAlertView * al = [[UIAlertView alloc] initWithTitle:@"Leave App?" message:@"Directions uses the Google Maps Application" delegate:self cancelButtonTitle:@"No" otherButtonTitles:@"Yes",nil];
+	al.tag = 2967;
+	[al show];
+	[al release];
+	
+}
+
+-(void) doDirections {
+
+
 	Locator * loc = [Locator instance];
 	
 	NSString * myLocString = [NSString stringWithFormat:@"%@,%@" , loc.latString , loc.lonString ];
@@ -242,6 +259,7 @@
 	//
 	
 	UIAlertView * al = [[UIAlertView alloc] initWithTitle:@"Are you sure?" message:[NSString stringWithFormat:@"Do you want to publicly check in at %@",venue.name] delegate:self cancelButtonTitle:@"No" otherButtonTitles:@"Yes",nil];
+	al.tag = 5478;
 	[al show];
 	[al release];
 	
@@ -256,7 +274,7 @@
 {
 	
 	
-	if ( buttonIndex == 1 ) 
+	if ( buttonIndex == 1 && alertView.tag == 5478 ) 
 		
 	{
 		
@@ -285,6 +303,10 @@
 			
 		}];
 		
+		
+	}  else if ( buttonIndex == 1 && alertView.tag == 2967 )  {
+		
+		[self doDirections];
 		
 	}
 	

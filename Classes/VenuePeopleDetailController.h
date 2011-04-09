@@ -14,8 +14,8 @@
 
 @interface VenuePeopleDetailController : UIViewController {
 		
-	IBOutlet UIBarButtonItem * favoriteButton;
-	IBOutlet UIBarButtonItem * callButton;
+	IBOutlet UIButton * favoriteButton;
+	IBOutlet UIButton * callButton;
 	
 	VenueView * venueView;
 	IBOutlet UIScrollView * scrollView;

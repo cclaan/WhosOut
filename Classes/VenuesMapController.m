@@ -8,14 +8,24 @@
 
 #import "VenuesMapController.h"
 #import <MapKit/MKAnnotation.h>
-#import "VenueAnnotation.h"
+//#import "VenueAnnotation.h"
 #import "Locator.h"
 #import "Model.h"
 #import "Foursquare2.h"
 #import "VenuePeopleDetailController.h"
 #import "SettingsPopupController.h"
+#import "FSVenueMapAnnotationView.h"
+#import <MapKit/MKGeometry.h>
 
 #import "NSString+EscapingUtils.h"
+
+
+@interface VenuesMapController()
+
+-(VenueAnnotation*) doesAnnotationExistForVenue:(FSVenue*) ven;
+
+@end
+
 
 @implementation VenuesMapController
 
@@ -55,23 +65,34 @@
     [super viewDidLoad];
 	
 	
+	dataOutOfDate = YES;
+	
 	//self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemSave target:self action:nil];
 	//self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Fav" style:UIBarButtonItemStylePlain target:self action:nil];
 	
-	//--mapView.showsUserLocation = YES;
+	mapView.showsUserLocation = YES;
+	
+	UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)]; 
+	//longPress.minimumPressDuration = 0.5;
+	[mapView addGestureRecognizer:longPress];
 	
 
 	//self.title = @"Back";
 	//self.navigationItem.title = @"Back";
-	self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bar-logo.png"]];
+	self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"custom-navbar-logo.png"]];
 	//self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Ω" style:UIBarButtonItemStylePlain target:self action:@selector(settingsClicked)];
-	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"settings-bar-button.png"] style:UIBarButtonItemStylePlain target:self action:@selector(settingsClicked)];
 	
-	self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"refresh-icon.png"] style:UIBarButtonItemStylePlain target:self action:@selector(refreshClicked)];
+	//self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"settings-bar-button.png"] style:UIBarButtonItemStylePlain target:self action:@selector(settingsClicked)];
+	//self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"refresh-icon.png"] style:UIBarButtonItemStylePlain target:self action:@selector(refreshClicked)];
+	
+	self.navigationItem.rightBarButtonItem = [UIBarButtonItem itemWithButtonImage:[UIImage imageNamed:@"settings-bar-button.png"] target:self action:@selector(settingsClicked)];
+	self.navigationItem.leftBarButtonItem = [UIBarButtonItem itemWithButtonImage:[UIImage imageNamed:@"refresh-icon.png"] target:self action:@selector(refreshClicked)];
+	
 	
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(genderPrefChanged) name:kGenderChangedNotification object:nil];
 	
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(displayVenues) name:kVenuesUpdatedNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(venuesUpdated) name:kVenuesUpdatedNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(venuesUpdateFinished) name:kVenuesUpdateFinishedNotification object:nil];
 	
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(venuesUpdateStarted) name:kVenuesUpdateStartedNotification object:nil];	
 	
@@ -83,7 +104,86 @@
 	
 }
 
+-(void) handleLongPress:(id) obj {
+	
+	NSLog(@"obj: %@ " , obj );
+	UILongPressGestureRecognizer * longPress = (UILongPressGestureRecognizer*)obj;
+	
+	if ( longPress.state == UIGestureRecognizerStateBegan ) {
+		
+		
+		CGPoint point = [longPress locationInView:mapView];
+		
+		CLLocationCoordinate2D coord= [mapView convertPoint:point toCoordinateFromView:mapView];
+		
+		NSLog(@"lat  %f",coord.latitude);
+		NSLog(@"long %f",coord.longitude);
 
+		if ( !fakeLocation ) {
+			
+			fakeLocation = [[SimpleAnnotation alloc] init];
+			//FSVenue * ven = [[FSVenue alloc] init];
+			//ven.name = @"Fake Location";
+			//fakeLocation.venue = ven;
+			
+		} else {
+			[mapView removeAnnotation:fakeLocation];
+		}
+		
+		//fakeLocation.venue.lat = coord.latitude;
+		//fakeLocation.venue.lng = coord.longitude;
+		[fakeLocation setCoordinate:coord];
+		//fakeLocation.latitude = [NSNumber numberWithDouble:coord.latitude];
+		//fakeLocation.longitude = [NSNumber numberWithDouble:coord.longitude];
+		
+		
+		
+		[mapView addAnnotation:fakeLocation];
+		
+		[self performSelector:@selector(showUseLocationAlert) withObject:nil afterDelay:0.85];
+		
+	}
+	
+}
+
+-(void) showUseLocationAlert {
+	
+	UIAlertView * al = [[UIAlertView alloc] initWithTitle:@"Make this your location?" message:@"Do you want to change your location to this point? Tap the pin to cancel anytime" delegate:self cancelButtonTitle:@"No" otherButtonTitles:@"Yes",nil];
+	[al show];
+	[al release];
+	
+}
+
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+
+{
+	
+	
+	if ( buttonIndex == 1 ) 
+		
+	{
+		
+		//CLLocationCoordinate2D faker = CLLocationCoordinate2DMake(fakeLocation.venue.lat, fakeLocation.venue.lng);		
+		//CLLocationCoordinate2D faker = CLLocationCoordinate2DMake(fakeLocation.coordinate.latitude, fakeLocation.coordinate.longitude);		
+		CLLocation * loc = [[CLLocation alloc] initWithLatitude:fakeLocation.coordinate.latitude longitude:fakeLocation.coordinate.longitude];
+		//loc.coordinate = faker;
+		[Model instance].chosenLocation = loc;
+		//[self startL
+		[self refreshClicked];
+		
+	} else {
+		
+		
+		[mapView removeAnnotation:fakeLocation];
+		[fakeLocation release];
+		fakeLocation = nil;
+		
+	}
+	
+	
+	
+}
+	
 
 -(void) viewDidAppear:(BOOL)animated {
 	
@@ -98,12 +198,21 @@
 		//[self startLocation];
 		[[Model instance] startLocationAndFindNearbyVenues];
 		
-	} else if ( ![Model instance].isLoadingNearbyVenues && !venuesDisplayed ) {
+	//} else if ( ![Model instance].isLoadingNearbyVenues && !venuesDisplayed ) {
+	} else if ( ![Model instance].isLoadingNearbyVenues && dataOutOfDate ) {
 		
 		// may already be loaded..
 		[self displayVenues];
 		
+	} else if ( ![Model instance].isLoadingNearbyVenues ) {
+		
+		// can call display instead...
+		//[self refreshVenueAnnotations];
+		[self displayVenues];
+		
 	}
+		
+			   
 	
 	
 	
@@ -120,7 +229,9 @@
 -(void) genderPrefChanged {
 	
 	//[self refreshClicked];
-	[self displayVenues];
+	//[self displayVenues];
+	
+	dataOutOfDate = YES;
 	
 }
 
@@ -149,20 +260,127 @@
 }
 
 
+#pragma mark -
+#pragma mark Model events
+
 
 -(void) venuesUpdateStarted {
 	
-	[mapView removeAnnotations:mapView.annotations];
+	//[mapView removeAnnotations:mapView.annotations];
 	
+	[mapView removeAnnotations: [mapView.annotations filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"!((self isKindOfClass: %@)||(self isKindOfClass: %@))", [MKUserLocation class], [SimpleAnnotation class]]]];
+	
+	
+	
+}
+
+-(void) venuesUpdated {
+	
+	[self displayVenues];
+	
+}
+
+-(void) venuesUpdateFinished {
+	
+	[self displayVenues];
+	
+	/*
+	NSArray * venuesArray = [Model instance].venuesArray;
+	
+	if ( [venuesArray count] == 0 ) {
+		
+		venuesDisplayed = YES;
+		dataOutOfDate = NO;
+		
+		if ( self.parentViewController.tabBarController.selectedViewController == self.parentViewController ) {
+			UIAlertView * al = [[UIAlertView alloc] initWithTitle:@"No Venues" message:@"No one is checked in around here.\n\nTry manually selecting a location like New York by tapping and holding it on the map.\n\nYou can also adjust your search radius in settings." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+			[al show];
+			[al release];
+		}
+		
+	} else {
+		[self displayVenues];
+	}
+	*/
+	
+}
+
+#pragma mark -
+
+-(void) refreshVenueAnnotations {
+	
+	//[[NSNotificationCenter defaultCenter] postNotificationName:@"updateVenueMapAnnotations" object:nil];
+	//MKMapView
+	
+	for (id <MKAnnotation> annotation in mapView.annotations) {
+	//for (id viewser in [[mapView.subviews objectAtIndex:0] subviews] ) {
+		
+		//if ( [viewser isKindOfClass:FSVenueMapAnnotationView
+		MKAnnotationView * annoView = [mapView viewForAnnotation:annotation];
+		
+		if ( [annoView isKindOfClass:[FSVenueMapAnnotationView class]] ) {
+			
+			//NSLog(@"setting!");
+			FSVenueMapAnnotationView * fsView = (FSVenueMapAnnotationView*)annoView;
+			fsView.annotation = fsView.annotation;
+			//fsView.numPeople = 0;
+			//[fsView refreshData];
+			
+		}
+		
+	}
+	
+	
+}
+
+-(VenueAnnotation*) doesAnnotationExistForVenue:(FSVenue*) ven {
+	
+	NSArray * existingAnnotations = [mapView.annotations filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"!((self isKindOfClass: %@)||(self isKindOfClass: %@))", [MKUserLocation class], [SimpleAnnotation class]]];
+	
+	for (VenueAnnotation * venAnno in existingAnnotations) {
+			
+		if ( [venAnno.venue isSameAs:ven] ) {
+			return venAnno;
+		} 
+		
+	}
+	
+	return nil;
+	
+}
+
+-(void) zoomToMyLocation {
+	
+	MKCoordinateRegion newRegion;
+	
+	if ( [Model instance].chosenLocation ) {
+		newRegion.center.latitude = mapView.userLocation.coordinate.latitude;
+		newRegion.center.longitude = mapView.userLocation.coordinate.longitude;
+	} else {
+		newRegion.center.latitude = mapView.userLocation.coordinate.latitude;
+		newRegion.center.longitude = mapView.userLocation.coordinate.longitude;
+	}
+	
+	newRegion.span.latitudeDelta = 0.0112872*4;
+	newRegion.span.longitudeDelta = 0.0109863*4;
+	[mapView setRegion:newRegion animated:NO];
 	
 }
 
 -(void) displayVenues {
 
 	
-	[mapView removeAnnotations:mapView.annotations];
+	//[mapView removeAnnotations:mapView.annotations];
+	//[mapView removeAnnotations: [mapView.annotations filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"!(self isKindOfClass: %@)", [MKUserLocation class]]]];
+	
+	//--[mapView removeAnnotations: [mapView.annotations filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"!((self isKindOfClass: %@)||(self isKindOfClass: %@))", [MKUserLocation class], [SimpleAnnotation class]]]];
+	
+	
 	
 	NSArray * venuesArray = [Model instance].venuesArray;
+	
+	
+									 
 	
 	if ( venuesArray ) {
 		
@@ -171,52 +389,124 @@
 		
 		for (venue in venuesArray) {
 			
+			VenueAnnotation * existingAnno = [self doesAnnotationExistForVenue:venue];
+			
+			BOOL shouldRemove = NO;
+	
+			// maybe category changed...
 			if ( g == GENDER_PREFERENCE_ALL ) {
-				if ( venue.numPeopleHereWithPhotos == 0 ) { continue; }
+				if ( venue.numPeopleHereWithPhotos == 0 ) { shouldRemove=YES; }
 			} else if ( g == GENDER_PREFERENCE_MALES ) {
-				if ( venue.numGuysHereWithPhotos == 0 ) { continue; }
+				if ( venue.numGuysHereWithPhotos == 0 ) { shouldRemove=YES; }
 			} else if ( g == GENDER_PREFERENCE_FEMALES ) {
-				if ( venue.numGirlsHereWithPhotos == 0 ) { continue; }
+				if ( venue.numGirlsHereWithPhotos == 0 ) { shouldRemove=YES; }
 			}
 			
-			VenueAnnotation * venueAnno = [[VenueAnnotation alloc] init];
-			venueAnno.venue = venue;
-			[mapView addAnnotation:venueAnno];
+			if ( [[Model instance] isBannedCategory:venue.primaryCategory.parent]  ) {
+				shouldRemove=YES;
+			}
+			
+			if ( shouldRemove && existingAnno ) {
+				[mapView removeAnnotation:existingAnno];
+				continue;
+			} else if ( shouldRemove ) {
+				continue;	
+			}
+			
+			if ( !existingAnno ) {
+				
+				VenueAnnotation * venueAnno = [[VenueAnnotation alloc] init];
+				venueAnno.venue = venue;
+				venueAnno.canShowDetails = YES;
+				
+				[mapView addAnnotation:venueAnno];
+				
+			} else {
+				
+				existingAnno.venue = venue;
+				
+				MKAnnotationView * annoView = [mapView viewForAnnotation:existingAnno];
+				
+				if ( annoView && [annoView isKindOfClass:[FSVenueMapAnnotationView class]] ) {
+					FSVenueMapAnnotationView * fsView = (FSVenueMapAnnotationView*)annoView;
+					fsView.annotation = fsView.annotation;
+				}
+				
+			}
+			
+			
 			
 		}
 		
-		/*
-		MKCoordinateRegion newRegion;
-		
-		newRegion.center.latitude = venue.lat;
-		newRegion.center.longitude = venue.lng;
-		
-		newRegion.span.latitudeDelta = 0.0112872;
-		newRegion.span.longitudeDelta = 0.0109863;
-		
-		[mapView setRegion:newRegion animated:YES];
-		*/
-		
 	}
 	
-	MKMapRect flyTo = MKMapRectNull;
 	
-	for (id <MKAnnotation> annotation in mapView.annotations) {
-        MKMapPoint annotationPoint = MKMapPointForCoordinate(annotation.coordinate);
-        MKMapRect pointRect = MKMapRectMake(annotationPoint.x, annotationPoint.y, 0, 0);
-        if (MKMapRectIsNull(flyTo)) {
-            flyTo = pointRect;
-        } else {
-            flyTo = MKMapRectUnion(flyTo, pointRect);
-        }
-    }
-    
-    // Position the map so that all overlays and annotations are visible on screen.
-    mapView.visibleMapRect = flyTo;
+	NSArray * venueAnnotations = [mapView.annotations filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"!((self isKindOfClass: %@)||(self isKindOfClass: %@))", [MKUserLocation class], [SimpleAnnotation class]]];
+	
+	if ( [venueAnnotations count] == 0 ) {
+		
+		NSLog(@"No annoatations!");
+		
+		if ( self.parentViewController.tabBarController.selectedViewController == self.parentViewController ) {
+			UIAlertView * al = [[UIAlertView alloc] initWithTitle:@"No Venues" message:@"No one is checked in around here.\n\nTry manually selecting a location like New York by tapping and holding it on the map.\n\nYou can also adjust your search filters in settings." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+			[al show];
+			[al release];
+		}
+		
+		/*
+		for (id <MKAnnotation> annotation in mapView.annotations ) {
+			
+			if ( [annotation isKindOfClass:[MKUserLocation class]] ) {
+				
+				MKMapPoint annotationPoint = MKMapPointForCoordinate(annotation.coordinate);
+				MKMapRect pointRect = MKMapRectMake(annotationPoint.x, annotationPoint.y, 50000, 50000);
+				[mapView setVisibleMapRect:pointRect edgePadding:UIEdgeInsetsMake(5, 5, 5, 5) animated:YES];
+				break;
+				
+			}
+			
+		}
+		*/
+		
+		[self zoomToMyLocation];
+		
+	} else {
+		
+		MKMapRect flyTo = MKMapRectNull;
+		
+		for (id <MKAnnotation> annotation in venueAnnotations ) {
+			
+			if ( [annotation isKindOfClass:[MKUserLocation class]] ) continue;
+			
+			MKMapPoint annotationPoint = MKMapPointForCoordinate(annotation.coordinate);
+			MKMapRect pointRect = MKMapRectMake(annotationPoint.x, annotationPoint.y, 0, 0);
+			if (MKMapRectIsNull(flyTo)) {
+				flyTo = pointRect;
+			} else {
+				flyTo = MKMapRectUnion(flyTo, pointRect);
+			}
+			
+		}
+			
+		NSLog(@"Map width: %f " , MKMapRectGetWidth(mapView.visibleMapRect) );
+		//272315
+		double mWidth = MKMapRectGetWidth(mapView.visibleMapRect);
+		double mWidth2 = MKMapRectGetWidth(flyTo);
+		
+		if ( !MKMapRectIntersectsRect(mapView.visibleMapRect , flyTo) || (mWidth > 150000) || ( mWidth2>mWidth ) ) { 
+			// Position the map so that all overlays and annotations are visible on screen.
+			//mapView.visibleMapRect = flyTo;
+			[mapView setVisibleMapRect:flyTo edgePadding:UIEdgeInsetsMake(5, 5, 5, 5) animated:YES];
+		}
+		
+	}
+
 	
 	
 	// change to time based, or location based ?
 	venuesDisplayed = YES;
+	
+	dataOutOfDate = NO;
 	
 	
 }
@@ -234,153 +524,77 @@
 		
 		VenueAnnotation * venAnno = (VenueAnnotation*)annotation;
 		
-		int level = 0; // 0 - 3 
-		int numPeople = 0;
-		GenderPreference g = [Model instance].genderPreference;
-		
-		if ( g == GENDER_PREFERENCE_ALL ) {
-			numPeople = venAnno.venue.numPeopleHereWithPhotos;
-		} else if ( g == GENDER_PREFERENCE_MALES ) {
-			numPeople = venAnno.venue.numGuysHereWithPhotos;
-		} else if ( g == GENDER_PREFERENCE_FEMALES ) {
-			numPeople = venAnno.venue.numGirlsHereWithPhotos;
-		}
-		
+				
 		// try to dequeue an existing pin view first
         static NSString* VenueAnnotationIdentifier = @"venueAnnotationIdentifier";
-		static NSString* VenueAnnotationIdentifierLow = @"VenueAnnotationIdentifierLow";
-		static NSString* VenueAnnotationIdentifierMed = @"VenueAnnotationIdentifierMed";
-		static NSString* VenueAnnotationIdentifierMedHigh = @"VenueAnnotationIdentifierMedHigh";
-		static NSString* VenueAnnotationIdentifierHigh = @"VenueAnnotationIdentifierHigh";
 		
-		NSString* ident = nil;
+		FSVenueMapAnnotationView * viewToReturn = nil;
 		
-		if ( numPeople < 2 ) {
-			level = 0;
-			ident = VenueAnnotationIdentifierLow;
-		} else if ( numPeople < 5 ) {
-			level = 1;
-			ident = VenueAnnotationIdentifierMed;
-		} else if ( numPeople < 10 ) {
-			level = 2;
-			ident = VenueAnnotationIdentifierMedHigh;
-		} else {
-			level = 3;
-			ident = VenueAnnotationIdentifierHigh;
-		}
-		
-        	
 			
-        MKPinAnnotationView* pinView = (MKPinAnnotationView *)[mapView dequeueReusableAnnotationViewWithIdentifier:ident];
+        FSVenueMapAnnotationView * pinView = (FSVenueMapAnnotationView *)[mapView dequeueReusableAnnotationViewWithIdentifier:VenueAnnotationIdentifier];
 		
         if (!pinView)
         {
+			FSVenueMapAnnotationView * annotationView = [[[FSVenueMapAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:VenueAnnotationIdentifier] autorelease];
 			
-			MKAnnotationView *annotationView = [[[MKAnnotationView alloc] initWithAnnotation:annotation
-                                                                             reuseIdentifier:ident] autorelease];
-            annotationView.canShowCallout = YES;
-            UIImage * pinImage = nil;
-			
-			switch (level) {
-				case 0:
-					pinImage = [UIImage imageNamed:@"map-pin-low.png"];
-					break;
-				case 1:
-					pinImage = [UIImage imageNamed:@"map-pin-medium.png"];
-					break;
-				case 2:
-					pinImage = [UIImage imageNamed:@"map-pin-medium-high.png"];
-					break;
-				case 3:
-					pinImage = [UIImage imageNamed:@"map-pin-high.png"];
-					break;
-			}
-			
-			
-			UILabel * numPeopleLabel = [[UILabel alloc] initWithFrame:CGRectMake(10, 5, 19, 24)];
-			numPeopleLabel.font = [UIFont boldSystemFontOfSize:19.];
-			numPeopleLabel.adjustsFontSizeToFitWidth = YES;
-			numPeopleLabel.minimumFontSize = 15.;
-			numPeopleLabel.backgroundColor = [UIColor clearColor];
-			numPeopleLabel.shadowColor = [UIColor colorWithWhite:0.0 alpha:0.2];
-			numPeopleLabel.shadowOffset = CGSizeMake(0, -1);
-			numPeopleLabel.textAlignment = UITextAlignmentCenter;
-			numPeopleLabel.textColor = [UIColor whiteColor];
-			
-			numPeopleLabel.text = [NSString stringWithFormat:@"%i" , numPeople];
-			
-            /*
-            CGRect resizeRect;
-            
-            resizeRect.size = flagImage.size;
-            CGSize maxSize = CGRectInset(self.view.bounds,
-                                         [LarisMapController annotationPadding],
-                                         [LarisMapController annotationPadding]).size;
-            maxSize.height -= self.navigationController.navigationBar.frame.size.height + [LarisMapController calloutHeight];
-            if (resizeRect.size.width > maxSize.width)
-                resizeRect.size = CGSizeMake(maxSize.width, resizeRect.size.height / resizeRect.size.width * maxSize.width);
-            if (resizeRect.size.height > maxSize.height)
-                resizeRect.size = CGSizeMake(resizeRect.size.width / resizeRect.size.height * maxSize.height, maxSize.height);
-            
-            resizeRect.origin = (CGPoint){0.0f, 0.0f};
-            UIGraphicsBeginImageContext(resizeRect.size);
-            [flagImage drawInRect:resizeRect];
-            UIImage *resizedImage = UIGraphicsGetImageFromCurrentImageContext();
-            UIGraphicsEndImageContext();
-            */
-            //--annotationView.image = pinImage;
-            annotationView.opaque = NO;
-			UIView * holderView = [[UIView alloc] initWithFrame:CGRectMake(0, 18, pinImage.size.width, pinImage.size.height)];
-			UIImageView * imgView = [[UIImageView alloc] initWithImage:pinImage];
-			
-			[holderView addSubview:imgView];
-			[holderView addSubview:numPeopleLabel];
-			[annotationView addSubview:holderView];
-			//[annotationView addSubview:numPeopleLabel];
-			//holderView.center = CGPointMake(0, -18);
-			annotationView.frame = CGRectMake(0, 0, 40, 60);
-			holderView.frame = CGRectMake(0, -10, 40, 50);
-			
-			//annotationView.backgroundColor = [UIColor greenColor];
-			
-            //UIImageView *sfIconView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"SFIcon.png"]];
-            //annotationView.leftCalloutAccessoryView = sfIconView;
-            //[sfIconView release];
-            
 			UIButton* rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
+			[rightButton addTarget:self
+							action:@selector(showDetails:)
+				  forControlEvents:UIControlEventTouchUpInside];
+			annotationView.rightCalloutAccessoryView = rightButton;
+			
+			viewToReturn = annotationView;
+			
+        }
+        else
+        {
+            viewToReturn = pinView;
+			//viewToReturn.annotation = annotation;
+			
+        }
+		
+		viewToReturn.annotation = annotation;
+		//viewToReturn.numPeople = numPeople;
+		//viewToReturn.hotnessLevel = level;
+		
+		//if (!venuesDisplayed) {
+		[viewToReturn dropIn];
+		//}
+		
+        return viewToReturn;
+		
+    } else if ([annotation isKindOfClass:[SimpleAnnotation class]]) {
+		
+        // try to dequeue an existing pin view first
+        static NSString* SimpleAnnotationIdentifier = @"simpleAnnotationIdentifier";
+        MKPinAnnotationView* pinView = (MKPinAnnotationView *)
+		[mapView dequeueReusableAnnotationViewWithIdentifier:SimpleAnnotationIdentifier];
+        if (!pinView)
+        {
+            // if an existing pin view was not available, create one
+            MKPinAnnotationView* customPinView = [[[MKPinAnnotationView alloc]
+												   initWithAnnotation:annotation reuseIdentifier:SimpleAnnotationIdentifier] autorelease];
+            customPinView.pinColor = MKPinAnnotationColorPurple;
+            customPinView.animatesDrop = YES;
+            customPinView.canShowCallout = YES;
+            
+            // add a detail disclosure button to the callout which will open a new view controller page
+            //
+            // note: you can assign a specific call out accessory view, or as MKMapViewDelegate you can implement:
+            //  - (void)mapView:(MKMapView *)mapView annotationView:(MKAnnotationView *)view calloutAccessoryControlTapped:(UIControl *)control;
+            //
+			
+            UIButton* rightButton = [UIButton buttonWithType:UIButtonTypeCustom];
+			rightButton.frame = CGRectMake(0, 0, 24, 24);
+			[rightButton setFont:[UIFont boldSystemFontOfSize:24.]];
+			[rightButton setTitle:@"X" forState:UIControlStateNormal];
             [rightButton addTarget:self
-                            action:@selector(showDetails:)
+                            action:@selector(removeChosenLocationPinClicked)
                   forControlEvents:UIControlEventTouchUpInside];
-            annotationView.rightCalloutAccessoryView = rightButton;
-			
-			annotationView.alpha = 0.0;
-			//holderView.backgroundColor = [UIColor greenColor];
-			[annotationView.layer removeAllAnimations];
-			
-			//static float delay = 0.0;
-			
-			float randTime = (float)(rand() % 6) * 0.1;
-			int randDist = 120;//10 + (rand() % 50);
-			CGPoint p = holderView.center;
-			p.y -= randDist;
-			holderView.center = p;
-			p.y += randDist;
-			
-			[UIView beginAnimations:@"fadeIn" context:nil];
-			[UIView setAnimationDuration:0.4];
-			[UIView setAnimationDelay:randTime];
-			annotationView.alpha = 1.0;
-			holderView.center = p;
-			[UIView commitAnimations];
-			
-			//delay += 0.05;
-			
-            return annotationView;
+            customPinView.rightCalloutAccessoryView = rightButton;
 			
 			
-			
-			
-            //return customPinView;
+            return customPinView;
         }
         else
         {
@@ -388,8 +602,22 @@
         }
         return pinView;
     }
-    
+	
+
     return nil;
+}
+
+-(void) removeChosenLocationPinClicked {
+	
+	[mapView removeAnnotation:fakeLocation];
+	[fakeLocation release];
+	fakeLocation = nil;
+	
+	[Model instance].chosenLocation = nil;
+	
+	[self refreshClicked];
+	
+	
 }
 
 -(void) showDetails:(id)sender {

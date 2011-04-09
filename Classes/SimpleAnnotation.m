@@ -44,7 +44,7 @@
 // optional
 - (NSString *)subtitle
 {
-    return @"Click for details";
+    return @"Tap X to delete";
 }
 
 

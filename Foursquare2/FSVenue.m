@@ -8,6 +8,7 @@
 
 #import "FSVenue.h"
 #import "FSUser.h"
+#import "FSCategory.h"
 
 #import "Model.h"
 
@@ -16,11 +17,15 @@
 
 @synthesize name, venueId, peopleHere;
 @synthesize contentHeightForCell, numPeopleHere, numGirlsHere, numGuysHere, numGirlsHereWithPhotos, numGuysHereWithPhotos, numPeopleHereWithPhotos, address, state , city;
-@synthesize phone , isLocalFavorite, categoryIconUrl;
+@synthesize phone , isLocalFavorite, primaryCategory, categories;
 
 @synthesize distanceFromMe, lat, lng;
 
-@synthesize beenHereCount;
+@synthesize beenHereCount , animateFavoriteChangeInCell;
+
+@synthesize hasRetrievedPeopleHere;
+
+
 
 - (id) init
 {
@@ -57,7 +62,8 @@
 	
 	if ( ![[Model instance] isVenueLocalFavorite:self] ) {
 		[self insertToDb];
-		[[Model instance] refreshLocalFavorites];
+		[[Model instance] addFavoriteVenue:self];
+		//[[Model instance] refreshLocalFavoriteVenues];
 		return;
 	}
 	
@@ -70,13 +76,14 @@
 	if ([db hadError]) {
 		
 		NSLog(@"Err updating fav venue for favorite use count %d: %@", [db lastErrorCode], [db lastErrorMessage]);
-		return NO;
+		return;
 		
 	} 
 	
-	[[Model instance] refreshLocalFavorites];
+	// no longer refreshing from disk
+	//--[[Model instance] refreshLocalFavoriteVenues];
 	
-	return YES;
+	return;
 	
 	
 }
@@ -100,10 +107,40 @@
 		
 	} 
 	
-	[[Model instance] refreshLocalFavorites];
+	// no longer refreshing from disk, use memory now
+	//--[[Model instance] refreshLocalFavoriteVenues];
 	
 	return YES;
 	
+	
+}
+
+
+-(void) copyDataFromAnotherVenue:(FSVenue*)ven {
+	
+	self.name = [ven.name copy];
+	self.numGirlsHere = ven.numGirlsHere;
+	self.numGirlsHereWithPhotos = ven.numGirlsHereWithPhotos;
+	self.numGuysHere = ven.numGuysHere;
+	self.numGuysHereWithPhotos = ven.numGuysHereWithPhotos;
+	self.numPeopleHere = ven.numPeopleHere;
+	self.numPeopleHereWithPhotos = ven.numPeopleHereWithPhotos;
+	//self.categoryIconUrl = [ven.categoryIconUrl copy];
+	self.primaryCategory = ven.primaryCategory;
+	//self.parentCategory = ven.parentCategory;
+	self.beenHereCount = ven.beenHereCount;
+	self.peopleHere = [ven.peopleHere mutableCopy];
+	self.categories = [ven.categories mutableCopy];
+	self.phone = [ven.phone copy];
+	self.state = [ven.state copy];
+	
+	
+	
+}
+
+-(BOOL) isSameAs:(FSVenue*)ven {
+
+	return [self.venueId isEqualToString:ven.venueId];
 	
 }
 
@@ -189,18 +226,38 @@
 		
 	}
 	
-	NSArray * categories = [data objectForKey:@"categories"];
+	NSArray * _categories = [data objectForKey:@"categories"];
 	
-	if ( categories && [categories count] > 0 ) {
-		for (id cat in categories) {
+	if ( _categories && [_categories count] > 0 ) {
+		
+		venue.categories = [NSMutableArray array];
+		
+		for (id cat in _categories) {
 			
+			FSCategory * fsCat = [FSCategory categoryFromJson:cat];
+			[venue.categories addObject:fsCat];
+			
+			if ( fsCat.isPrimary ) {
+				venue.primaryCategory = fsCat;
+			}
+			
+			/*
 			id prim = [cat objectForKey:@"primary"];
 			
 			if ( prim ) {
+				
 				venue.categoryIconUrl = [cat objectForKey:@"icon"];
-				break;
+				
+				id parent = [cat objectForKey:@"parents"];
+				
+				if ( parent && [parent count] ) {
+					venue.parentCategoryName = [parent objectAtIndex:0];
+					venue.parentCategory = [venue categoryTypeForString:venue.parentCategoryName];
+				}
+				
+				//break;
 			}
-									 
+				*/					 
 		}
 	}
 		
@@ -209,7 +266,8 @@
 	NSArray * hereNow = [[data objectForKey:@"hereNow"] objectForKey:@"groups"];
 	
 	if ( hereNow && [hereNow count] > 0 ) {
-	
+		
+		venue.hasRetrievedPeopleHere = YES;
 		venue.peopleHere = [[NSMutableArray alloc] init];
 		
 		for (id group in hereNow) {
@@ -263,6 +321,7 @@
 	
 	
 }
+
 
 +(NSMutableArray*) venueArrayFromJson:(id) data {
 	

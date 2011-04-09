@@ -10,7 +10,7 @@
 #import "Constants.h"
 
 #define	kDesiredAccuracyRadiusInMeters 5000. // meters
-#define kLocationTimeout				5. // seconds
+#define kLocationTimeout				4. // seconds
 #define kLifeOfLocationMeasurement		-1000. // seconds that one measurement is valid for... so after this time it will restart location manager.
 
 #define kDefaultLatitude -71.058197
@@ -26,6 +26,7 @@ static Locator *instance = nil;
 
 
 - (id) init {
+	
 	self = [super init];
 	if (self != nil) {
 		
@@ -72,8 +73,20 @@ static Locator *instance = nil;
 		
 		NSLog(@"Starting location manager");
 		
+		// start timer... 
+		
+		if ( !timeoutTimer ) {
+			//NSLog(@"Starting timeout timer");
+			
+			updatesBeganDate = [[NSDate date] retain];
+			timeoutTimer = [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(timeoutTimerFired) userInfo:nil repeats:YES];
+			
+		}
+		
 		//locationManager.desiredAccuracy 
 		[self.locationManager startUpdatingLocation];
+		
+		
 		
 	}
 }
@@ -110,9 +123,10 @@ static Locator *instance = nil;
 		[timeoutTimer invalidate];
 		timeoutTimer = nil;
 		
-		
-		
-		
+
+	} else if ( hasReceivedLocation ) {
+		[timeoutTimer invalidate];
+		timeoutTimer = nil;
 	}
 	
 }
@@ -170,15 +184,7 @@ static Locator *instance = nil;
 			
 		} else {
 			
-			// start timer... 
-			
-			if ( !timeoutTimer ) {
-				//NSLog(@"Starting timeout timer");
-				
-				updatesBeganDate = [[NSDate date] retain];
-				timeoutTimer = [NSTimer scheduledTimerWithTimeInterval:0.5 target:self selector:@selector(timeoutTimerFired) userInfo:nil repeats:YES];
-				
-			}
+			// old timer was here...
 			
 		}
 		
@@ -242,6 +248,8 @@ static Locator *instance = nil;
 		[errorString appendFormat:@"Error domain: \"%@\"  Error code: %d\n", [error domain], [error code]];
 		[errorString appendFormat:@"Description: \"%@\"\n", [error localizedDescription]];
 	}
+	
+	NSLog(@"Location err: %@ " , errorString );
 	
 	// Send the update to our delegate
 	//[self.delegate newLocationUpdate:errorString];

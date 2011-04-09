@@ -7,6 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "FSCategory.h"
+
 
 
 @interface FSVenue : NSObject {
@@ -22,9 +24,23 @@
 
 @property BOOL isLocalFavorite;
 
+@property BOOL hasRetrievedPeopleHere;
+
+// kind of a hack... 
+@property BOOL animateFavoriteChangeInCell;
+
 @property (nonatomic, retain) NSString * name;
 @property (nonatomic, retain) NSString * venueId;
-@property (nonatomic, retain) NSString * categoryIconUrl;
+
+//@property (nonatomic, retain) NSString * categoryIconUrl;
+//@property (nonatomic, retain) NSString * primaryCategory;
+@property (nonatomic, retain) FSCategory * primaryCategory;
+//@property (nonatomic, retain) FSCategory * parentCategory;
+
+//@property VenueGenericCategory parentCategory;
+//@property (nonatomic, retain) NSString * parentCategoryName;
+@property (nonatomic, retain) NSMutableArray * categories;
+
 @property (nonatomic, retain) NSMutableArray * peopleHere;
 
 @property (nonatomic, retain) NSString * address;
@@ -47,6 +63,9 @@
 -(void) markAsFavorite;
 -(void) unFavorite;
 
+// useful for updating another venue object of the same venue
+-(void) copyDataFromAnotherVenue:(FSVenue*)ven;
+-(BOOL) isSameAs:(FSVenue*)ven;
 
 +(FSVenue*) venueFromJson:(id)data;
 //+(NSArray*) venuesArrayFromJson:(id)

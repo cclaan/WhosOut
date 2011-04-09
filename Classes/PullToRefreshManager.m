@@ -32,6 +32,8 @@
 
 @synthesize textPull, textRelease, textLoading;//, refreshHeaderView, refreshLabel, refreshArrow, refreshSpinner;
 @synthesize showBottomHeader;
+@synthesize startPullUpDate;
+
 
 -(id) initWithScrollView:(UIScrollView*)_scrollView 
 {
@@ -41,8 +43,12 @@
 		textPull = [[NSString alloc] initWithString:@"Pull down to refresh..."];
         textRelease = [[NSString alloc] initWithString:@"Release to refresh..."];
         textLoading = [[NSString alloc] initWithString:@"Loading..."];
-		
+		pullState = PULL_STATE_NONE;
+		pullStateBottom = PULL_STATE_NONE;
 		self.scrollView = _scrollView;
+		
+		self.showBottomHeader = NO;
+		
 		
 	}
 	return self;
@@ -59,7 +65,7 @@
 	
 	[self addPullToRefreshHeader];
 	
-	self.showBottomHeader = YES;
+	
 	
 }
 
@@ -145,35 +151,67 @@
     } else if (isDragging && scrollView.contentOffset.y < 0) {
 		
 		
+		
+		
         // Update the arrow direction and label
-        [UIView beginAnimations:nil context:NULL];
-        if (scrollView.contentOffset.y < -REFRESH_HEADER_HEIGHT) {
-            // User is scrolling above the header
+        
+		if ( (scrollView.contentOffset.y < -REFRESH_HEADER_HEIGHT) && pullState != PULL_STATE_UP ) {
+            
+			
+			pullState = PULL_STATE_UP;
+			self.startPullUpDate = [NSDate date];
+			[UIView beginAnimations:nil context:NULL];
+			// User is scrolling above the header
             refreshHeaderView.refreshLabel.text = self.textRelease;
             [refreshHeaderView.refreshArrow layer].transform = CATransform3DMakeRotation(M_PI, 0, 0, 1);
-        } else { // User is scrolling somewhere within the header
+			[UIView commitAnimations];
+			
+        } else if ( (scrollView.contentOffset.y > -REFRESH_HEADER_HEIGHT) && pullState != PULL_STATE_DOWN) { // User is scrolling somewhere within the header
+			
+			
+			pullState = PULL_STATE_DOWN;
+			
+			[UIView beginAnimations:nil context:NULL];
             refreshHeaderView.refreshLabel.text = self.textPull;
             [refreshHeaderView.refreshArrow layer].transform = CATransform3DMakeRotation(M_PI * 2, 0, 0, 1);
+			[UIView commitAnimations];
         }
 		
-        [UIView commitAnimations];
+        
 		
 		
     }  else if ( isDragging && showBottomHeader && (scrollView.contentOffset.y+scrollView.frame.size.height) > scrollView.contentSize.height ) {
 		
 		
+		
         // Update the arrow direction and label
-        [UIView beginAnimations:nil context:NULL];
-        if ((scrollView.contentOffset.y+scrollView.frame.size.height) > scrollView.contentSize.height+REFRESH_HEADER_HEIGHT) {
-            // User is scrolling above the header
+        
+		
+        if ( pullStateBottom != PULL_STATE_UP && (scrollView.contentOffset.y+scrollView.frame.size.height) > scrollView.contentSize.height+REFRESH_HEADER_HEIGHT) {
+			
+			
+			pullStateBottom = PULL_STATE_UP;
+			self.startPullUpDate = [NSDate date];
+            
+			[UIView beginAnimations:nil context:NULL];
+			// User is scrolling above the header
             refreshHeaderViewBottom.refreshLabel.text = self.textRelease;
             [refreshHeaderViewBottom.refreshArrow layer].transform = CATransform3DMakeRotation(M_PI, 0, 0, 1);
-        } else { // User is scrolling somewhere within the header
+			[UIView commitAnimations];
+			
+        } else if ( (scrollView.contentOffset.y+scrollView.frame.size.height) < scrollView.contentSize.height+REFRESH_HEADER_HEIGHT && pullStateBottom != PULL_STATE_DOWN ) { // User is scrolling somewhere within the header
+			
+			
+			pullStateBottom = PULL_STATE_DOWN;
+			
+			[UIView beginAnimations:nil context:NULL];
             refreshHeaderViewBottom.refreshLabel.text = self.textPull;
             [refreshHeaderViewBottom.refreshArrow layer].transform = CATransform3DMakeRotation(M_PI * 2, 0, 0, 1);
+			[UIView commitAnimations];
+			
         }
 		
-        [UIView commitAnimations];
+        
 		
 		
     }
@@ -188,11 +226,26 @@
 	isDragging = NO;
     
 	if (scrollView.contentOffset.y <= -REFRESH_HEADER_HEIGHT) {
-        // Released above the header
-        [self startLoading];
+       
+		NSTimeInterval t = -[startPullUpDate timeIntervalSinceNow];
+		//NSLog(@"time since: %f " , t);
+		
+		// prevent accidentally refreshing from fast scrolling...
+		if ( t > 0.08 ) {
+			// Released above the header
+			[self startLoading];
+		}
+		
     } else if (showBottomHeader && (scrollView.contentOffset.y+scrollView.frame.size.height) >= scrollView.contentSize.height + REFRESH_HEADER_HEIGHT) {
-        // Released above the header
-        [self startLoadingBottom];
+        
+		NSTimeInterval t = -[startPullUpDate timeIntervalSinceNow];
+		//NSLog(@"time since: %f " , t);
+		
+		// prevent accidentally refreshing from fast scrolling...
+		if ( t > 0.08 ) {
+			// Released above the header
+			[self startLoadingBottom];
+		}
     }
 }
 

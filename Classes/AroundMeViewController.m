@@ -20,6 +20,8 @@
 #import "Model.h"
 
 #import "GeoFunctions.h"
+#import "UIColor+extensions.h"
+#import "UIBarButtonItem+extensions.h"
 
 @interface AroundMeViewController()
 
@@ -40,18 +42,41 @@
     
 	[super viewDidLoad];
 
+	//pullToRefresh = [[PullToRefreshManager alloc] initWithScrollView:scrollView];
+	//pullToRefresh.delegate = self;
+	
+	scrollView.pullRefreshDelegate = self;
+	
+	
+	
+	
+	statusLabel = [[UILabel alloc] init];
+	statusLabel.font = [UIFont italicSystemFontOfSize:17];
+	statusLabel.backgroundColor = [UIColor clearColor];
+	statusLabel.textColor = [UIColor colorWithRGBHex:0xc7c392];
+	statusLabel.shadowColor = [UIColor colorWithRGBHex:0x0d2e4a];
+	statusLabel.shadowOffset = CGSizeMake(0, -1);
+	statusLabel.textAlignment = UITextAlignmentCenter;
+	statusLabel.frame = CGRectMake(0, 9, self.view.frame.size.width, 25);
+	//statusLabel.text =  @"25 People Out Around You";
+	[scrollView addSubview:statusLabel];
 	
 	//self.title = @"Back";
 	self.navigationItem.title = @"Back";
-	self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bar-logo.png"]];
-	//self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Ω" style:UIBarButtonItemStylePlain target:self action:@selector(settingsClicked)];
-	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"settings-bar-button.png"] style:UIBarButtonItemStylePlain target:self action:@selector(settingsClicked)];
+	self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"custom-navbar-logo.png"]];
 	
-	self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"refresh-icon.png"] style:UIBarButtonItemStylePlain target:self action:@selector(refreshClicked)];
+	
+	//self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:[[UIImageView alloc] initWithImage:[UIImage imageNamed:@"settings-bar-button.png"]]];
+	//self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:b];
+	
+	self.navigationItem.rightBarButtonItem = [UIBarButtonItem itemWithButtonImage:[UIImage imageNamed:@"settings-bar-button.png"] target:self action:@selector(settingsClicked)];
+	
+	//self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"refresh-icon.png"] style:UIBarButtonItemStylePlain target:self action:@selector(refreshClicked)];
 	
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(genderPrefChanged) name:kGenderChangedNotification object:nil];
 	
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(displayVenues) name:kVenuesUpdatedNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(venuesUpdated) name:kVenuesUpdatedNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(venuesUpdateFinished) name:kVenuesUpdateFinishedNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(venuesUpdateStarted) name:kVenuesUpdateStartedNotification object:nil];	
 	
 	if ( !venueViews ) {
@@ -90,9 +115,36 @@
 		
 		[self displayVenues];
 		
+	} else if ( ![Model instance].isLoadingNearbyVenues ) {
+		
+		CGPoint p = scrollView.contentOffset;
+		//NSLog(@"starting Y: %f  , height: %f " , p.y , scrollView.contentSize.height );
+		
+		currentYOffset = 0;
+		[venueViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+		[self displayVenues];
+		
+		p.y = fmin(p.y, (scrollView.contentSize.height-scrollView.frame.size.height));
+		p.y = fmax(0, p.y);
+		//NSLog(@"new Y: %f, height: %f  " , p.y , scrollView.contentSize.height  );
+		
+		//scrollView.contentOffset = p;
+		//[scrollView setContentOffset:p animated:YES];
+		[scrollView setContentOffset:p animated:NO];
+		[scrollView layoutSubviews];
+		
 	}
 	
 }
+
+-(BOOL) scrollViewShouldRefresh:(UIScrollView*)_scrollView {
+	
+	[self refreshClicked];
+	return YES;
+	
+}
+
+
 
 /*
 -(void) viewWillAppear:(BOOL)animated {
@@ -151,6 +203,59 @@
 }
 
 #pragma mark -
+
+
+-(void) hideNoVenues {
+	
+	
+	//statusLabel.text = @"Your Favorite Venues";
+	statusLabel.numberOfLines = 1;
+	scrollView.userInteractionEnabled = YES;
+	
+	if ( [noVenuesView superview] ) {
+		[noVenuesView removeFromSuperview];
+		noVenuesView = nil;
+	}
+	
+	self.navigationItem.leftBarButtonItem = nil;
+
+}
+
+-(void) showNoVenues {
+	
+	scrollView.userInteractionEnabled = NO;
+	
+	// [self clearDataAndViews];
+	
+	self.navigationItem.leftBarButtonItem = [UIBarButtonItem itemWithButtonImage:[UIImage imageNamed:@"refresh-icon.png"] target:self action:@selector(refreshClicked)];
+	
+	statusLabel.numberOfLines = 3;
+	statusLabel.text = @"No Nearby Venues\nTry picking a location\non the Map";
+	[statusLabel sizeToFit];
+	CGRect fr = statusLabel.frame;
+	fr.origin.x = self.view.frame.size.width/2 - fr.size.width/2;
+	statusLabel.frame = fr;
+	
+	if ( [noVenuesView superview] ) {
+		
+		[noVenuesView removeFromSuperview];
+		noVenuesView = nil;
+	
+	}
+
+	noVenuesView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"no-nearby-placeholder.png"]];
+	noVenuesView.center = self.view.center;
+	
+	[self.view addSubview:noVenuesView];
+	
+	[noVenuesView release];
+	
+}
+
+
+
+
+#pragma mark -
 #pragma mark Buttons
 
 -(IBAction) refreshClicked {
@@ -193,6 +298,8 @@
 
 -(void) venuesUpdateStarted {
 	
+	statusLabel.text = @"";
+	
 	[venueViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
 	
 	scrollView.contentOffset = CGPointMake(0, 0);
@@ -204,14 +311,45 @@
 	
 	currentYOffset = 0;
 
+	//[pullToRefresh resetFrames];
+	
+}
+
+-(void) venuesUpdated {
+	[self displayVenues];
+}
+
+-(void) venuesUpdateFinished {
+	
+	if ( scrollView.isLoading ) {
+		[scrollView stopLoading];
+	}
+	
+	NSArray * venuesArray = [Model instance].venuesArray;
+	
+	if ( [venuesArray count] == 0 ) {
+		
+		[self showNoVenues];
+		
+	} else {
+		
+		//[self hideNoVenues];
+		[self displayVenues];
+		
+	}
+	
+	
 	
 }
 
 -(void) displayVenues {
 	
+	[self hideNoVenues];
+	
+	
 	NSArray * venuesArray = [Model instance].venuesArray;
 	
-
+	scrollView.contentSize = CGSizeMake(self.view.frame.size.width, 1);
 	
 	//scrollView.contentOffset = CGPointMake(0, 0);
 	
@@ -219,16 +357,28 @@
 	
 	//[self sortVenuesByDistance];
 	
-	currentYOffset = 0;
+	currentYOffset = 42;
+	totalGirlsOut = 0;
+	totalGuysOut = 0;
+	
 	
 	for (FSVenue * venue in venuesArray) {
 		
-		[self showUsersFromVenue:venue];
+		if ( venue.hasRetrievedPeopleHere ) {
+			[self showUsersFromVenue:venue];
+		} else {
+			NSLog(@"no peeps!");
+		}
 		
 	}
 	
 	usersDisplayed = YES;
 	
+	
+	if ( currentYOffset == 42 ) {
+		NSLog(@"no venues!!!");
+		[self showNoVenues];
+	}
 }
 
 /*
@@ -243,13 +393,19 @@
 }
 */
 
+-(void) checkForNoVenues {
+	
+	
+	
+}	
+
 -(void) showUsersFromVenue:(FSVenue*)ven {
 	
 	// check if we have a cell for it already... 
 	
 	// if so, update it
 	
-	//venueViews
+	// venueViews
 	
 	GenderPreference pref = [Model instance].genderPreference;
 	
@@ -261,10 +417,16 @@
 		return;
 	}
 	
+	//if ( ven.primaryCategory.parent.genericCategory == CATEGORY_HOMES_WORK_OTHERS ) {
+	
+	if ( [[Model instance] isBannedCategory:ven.primaryCategory.parent]  ) {
+		return;
+	}
+	
 	VenueView * venView = nil;
 	
 	for (VenueView * vView in venueViews) {
-		if ( vView.venue == ven ) {
+		if ( [vView.venue isSameAs:ven] ) {
 			venView = vView;
 		}
 	}
@@ -291,7 +453,16 @@
 		heightOfView = 64 + ceil( (float)ven.numGirlsHereWithPhotos / 2.0 ) * 154;
 	}
 	
-	NSLog(@"height: %f , yOff: %f , " , heightOfView , currentYOffset );
+	totalGuysOut += ven.numGuysHere;
+	totalGirlsOut += ven.numGirlsHere;
+	
+	statusLabel.text =  [NSString stringWithFormat:@"%i Girls, %i Guys Out Around You", totalGirlsOut, totalGuysOut];
+	[statusLabel sizeToFit];
+	CGRect fr = statusLabel.frame;
+	fr.origin.x = self.view.frame.size.width/2 - fr.size.width/2;
+	statusLabel.frame = fr;
+	
+	//NSLog(@"height: %f , yOff: %f , " , heightOfView , currentYOffset );
 	
 	venView.frame = CGRectMake(0, currentYOffset, self.view.frame.size.width, heightOfView );
 	
@@ -300,6 +471,8 @@
 	[scrollView addSubview:venView];
 	
 	scrollView.contentSize = CGSizeMake(self.view.frame.size.width, currentYOffset);
+	
+	[pullToRefresh resetFrames];
 	
 	
 	

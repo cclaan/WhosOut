@@ -10,6 +10,7 @@
 #import "Foursquare2.h"
 #import "WhosOutConstants.h"
 
+#import "AuthSplashViewController.h"
 
 @interface MoreSquareAppDelegate : NSObject <UIApplicationDelegate> {
     
@@ -18,6 +19,8 @@
 	UITabBarController * tabController;
 	
 	UIView * splashView;
+	
+	AuthSplashViewController * authController;
 	
 }
 

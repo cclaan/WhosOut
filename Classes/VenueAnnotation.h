@@ -19,7 +19,7 @@
 }
 
 @property (nonatomic, retain) FSVenue * venue;
-
+@property BOOL canShowDetails;
 //@property (nonatomic, retain) NSNumber *latitude;
 //@property (nonatomic, retain) NSNumber *longitude;
 

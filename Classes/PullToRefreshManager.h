@@ -16,6 +16,12 @@
 @end
 
 
+typedef enum PullState {
+	PULL_STATE_NONE,
+	PULL_STATE_UP,	
+	PULL_STATE_DOWN,
+} PullState;
+
 @interface PullToRefreshManager : NSObject <UIScrollViewDelegate> {
 	
 	PullToRefreshHeaderView * refreshHeaderView;
@@ -34,7 +40,12 @@
     NSString *textRelease;
     NSString *textLoading;
 	
+	PullState pullState;
+	PullState pullStateBottom;
+	
 }
+
+@property (nonatomic, retain) NSDate * startPullUpDate;
 
 @property BOOL showBottomHeader;
 

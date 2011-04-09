@@ -10,16 +10,20 @@
 #import "FSObjects.h"
 
 #import "FSUserButton.h"
+#import "SimpleTouchView.h"
 
 @interface VenueView : UIView {
 	
 	NSMutableArray * images;
 	
-	UIButton * venueInformation;
+	UILabel * venueInformation;
 	UILabel * subLabel;
+	
+	SimpleTouchView * labelToucher;
 	
 	UIButton * venueButton;
 	
+	UIImageView * disclosureImageView;
 	
 	int photoIndex;
 	
@@ -28,8 +32,8 @@
 	
 	
 }
-
-
+@property BOOL venuePopulated;
+@property BOOL isFullPageVenue;
 @property (nonatomic, assign) id delegate;
 @property (nonatomic, retain) FSVenue * venue;
 

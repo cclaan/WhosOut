@@ -42,8 +42,8 @@
 		
 		//[self performSelector:@selector(showAuthSplash) withObject:nil afterDelay:1.0];
 		
-		[self showFoursquareAuth];
-		
+		//[self showFoursquareAuth];
+		[self showAuthSplash];
 	
 	}
 	
@@ -62,10 +62,28 @@
 	//[Foursquare2 setBaseURL:nil];
 	[Foursquare2 removeAccessToken];
 	
-	[self showAuthSplash];
+	[self performSelector:@selector(showAuthSplash) withObject:nil afterDelay:0.8];
 	
 }
 
+-(void) showAuthSplash {
+	
+	
+	//if ( !authController ) {
+		
+		authController = [[AuthSplashViewController alloc] init];
+		authController.delegate = self;
+		
+	//}
+	
+	//[self.window insertSubview:splashView atIndex:0];
+	//[tabController.view insertSubview:splashView aboveSubview:tabController.view];
+	//[tabController.view insertSubview:splashView atIndex:2];
+	[tabController presentModalViewController:authController animated:YES];
+	
+}
+
+/*
 -(void) showAuthSplash {
 	
 	
@@ -90,12 +108,23 @@
 	[tabController.view insertSubview:splashView atIndex:2];
 	
 }
+*/
 
 -(void) hideAuthSplash {
 	
-	[splashView removeFromSuperview];
-	[splashView release];
-	splashView = nil;
+	//[splashView removeFromSuperview];
+	//[splashView release];
+	//splashView = nil;
+	
+	NSLog(@"hide auth splash");
+	[tabController dismissModalViewControllerAnimated:YES];
+	
+	//[authController release];
+	//authController = nil;
+	
+	//[tabController dismissModalViewControllerAnimated:NO];
+	
+	
 	
 }
 
@@ -107,11 +136,13 @@
 								 if (success) {
 									 
 									 [self hideAuthSplash];
-									 [tabController.selectedViewController viewWillAppear:YES];
+									 //[tabController.selectedViewController viewWillAppear:YES];
 									 
 								 } else {
 									 
-									 [self showAuthSplash];
+									 NSLog(@"authController dismissModalViewControllerAnimated ");
+									 //[self showAuthSplash];
+									 [authController dismissModalViewControllerAnimated:YES];
 									 
 								 }
 								 
@@ -139,6 +170,7 @@ Foursquare2Callback authorizeCallbackDelegate;
 
 -(void)authorizeWithViewController:(UIViewController*)controller
 						  Callback:(Foursquare2Callback)callback{
+	
 	authorizeCallbackDelegate = [callback copy];
 	NSString *url = [NSString stringWithFormat:@"https://foursquare.com/oauth2/authenticate?display=touch&client_id=%@&response_type=code&redirect_uri=%@",OAUTH_KEY,REDIRECT_URL];
 	FoursquareWebLogin *loginCon = [[FoursquareWebLogin alloc] initWithUrl:url];
@@ -156,7 +188,7 @@ Foursquare2Callback authorizeCallbackDelegate;
 	navCon.navigationBar.tintColor = [UIColor greenColor];
 	*/
 	
-	[controller presentModalViewController:loginCon animated:YES];
+	[controller.modalViewController presentModalViewController:loginCon animated:YES];
 	//[navCon release];
 	[loginCon release];	
 	
@@ -166,7 +198,8 @@ Foursquare2Callback authorizeCallbackDelegate;
 
 -(void) closeAuthScreen {
 	
-	[tabController dismissModalViewControllerAnimated:YES];
+	NSLog(@"closeAuthScreen");
+	[authController dismissModalViewControllerAnimated:YES];
 	authorizeCallbackDelegate(NO,nil);
 	
 }
@@ -184,13 +217,6 @@ Foursquare2Callback authorizeCallbackDelegate;
 		}
 	}];
 }
-
--(void) closeAuthController {
-	
-	[tabController dismissModalViewControllerAnimated:YES];
-	
-}
-
 
 
 

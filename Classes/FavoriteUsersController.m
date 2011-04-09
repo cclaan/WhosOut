@@ -96,6 +96,9 @@
 -(void) checkFavoriteUsersAgainstVenues {
 	
 	NSArray * vens = [Model instance].venuesArray;
+	
+	NSArray * favVens = [Model instance].favoriteVenues;
+	
 	NSArray * favUsers = [Model instance].favoriteUsers;
 	
 	for (FSUser * favUser in favUsers ) {
@@ -109,9 +112,25 @@
 				for (FSUser * usr in ven.peopleHere ) {
 					
 					if ( [usr.userId isEqualToString:favUser.userId] ) {
+						
 						favUser.currentVenue = ven;
 						usr.currentVenue = ven;
-						//NSLog(@"found user %@ at %@ " , favUser.firstName , ven.name );
+						
+					}
+				}
+				
+			}
+			
+			for (FSVenue * ven in favVens) {
+				
+				for (FSUser * usr in ven.peopleHere ) {
+					
+					if ( [usr.userId isEqualToString:favUser.userId] ) {
+						
+						NSLog(@"found user at: %@ , %@ " , ven , ven.name );
+						favUser.currentVenue = ven;
+						usr.currentVenue = ven;
+						
 					}
 				}
 				
@@ -158,8 +177,10 @@
 	usr.extraData->loading = YES;
 	
 	NSLog(@"relaly getting data for user: %@ " , usr.firstName );
-	[Foursquare2 getVenuesVisitedByUser:usr.userId callback:^(BOOL success, id result){
-	//[Foursquare2 getDetailForUser: usr.userId callback:^(BOOL success, id result){
+	
+	//[Foursquare2 getVenuesVisitedByUser:usr.userId callback:^(BOOL success, id result){
+		
+	[Foursquare2 getDetailForUser: usr.userId callback:^(BOOL success, id result){
 		
 
 		if ( success ) {

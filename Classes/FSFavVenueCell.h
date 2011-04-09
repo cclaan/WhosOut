@@ -14,8 +14,16 @@
 @interface FSFavVenueCell : UITableViewCell {
 	
 	EGOImageView * profileImageView;
+	
 	UILabel * nameLabel;
+	UILabel * subLabel;
+	
 	CAGradientLayer * gradientLayer;
+	
+	UIImageView * addButton;
+	UIImageView * checkButton;
+	
+	
 	
 }
 

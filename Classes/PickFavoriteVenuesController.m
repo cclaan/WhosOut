@@ -10,6 +10,8 @@
 #import "Foursquare2.h"
 #import "Model.h"
 #import "Locator.h"
+#import "SimpleMessageObject.h"
+#import "FSDataSection.h"
 
 @implementation PickFavoriteVenuesController
 
@@ -240,6 +242,13 @@
 			//pastVenues = [[FSVenue venueArrayFromJson:result] retain];
 			pastVenues = [[FSVenue venueArrayFromHistoryJson:venuesObject] retain];			  
 			
+			for (FSVenue * venue in pastVenues) {
+				CLLocationCoordinate2D loc = [Locator instance].location.coordinate;
+				double myLat = loc.latitude;
+				double myLng = loc.longitude;
+				venue.distanceFromMe = geo_distance(venue.lat, venue.lng, myLat, myLng, 'M');
+			}
+			
 			[pastVenues sortUsingComparator:_sortByBeenHereCount];
 			
 			[self performSelectorOnMainThread:@selector(networkDataLoaded) withObject:nil waitUntilDone:NO];
@@ -273,7 +282,7 @@
 		
 		[hud hide:YES];
 		
-		NSLog(@"search result: %@ " , result );
+		//- NSLog(@"search result: %@ " , result );
 		
 		
 		if ( success ) {
@@ -286,8 +295,27 @@
 			nearbyVenues = [[NSMutableArray alloc] init];
 			
 			for (id group in groupsArr) {
+				
 				NSLog(@"found group: %@" , [group objectForKey:@"name"] );
-				[nearbyVenues addObjectsFromArray:[FSVenue venueArrayFromJson:[group objectForKey:@"items"]]];
+				
+				FSDataSection * section = [[FSDataSection alloc] init];
+				section.title = [group objectForKey:@"name"];
+				section.data = [FSVenue venueArrayFromJson:[group objectForKey:@"items"]];
+				[nearbyVenues addObject:section];
+				
+				//[nearbyVenues addObjectsFromArray:[FSVenue venueArrayFromJson:[group objectForKey:@"items"]]];
+				
+			}
+			
+			for (FSDataSection * section in nearbyVenues) {
+				
+				for (FSVenue * venue in section.data) {
+					
+					CLLocationCoordinate2D loc = [Locator instance].location.coordinate;
+					double myLat = loc.latitude;
+					double myLng = loc.longitude;
+					venue.distanceFromMe = geo_distance(venue.lat, venue.lng, myLat, myLng, 'M');
+				}
 				
 			}
 			
@@ -312,6 +340,7 @@
 	hud.labelText = @"Finding...";
 	[hud show:YES];
 	
+	self.searchResultsVenues = nil;
 	
 	[Foursquare2 searchVenuesNearByLatitude:[Locator instance].latString longitude:[Locator instance].lonString accuracyLL:nil altitude:nil accuracyAlt:nil query:str limit:@"200" intent:nil callback:^(BOOL success, id result){
 		//[Foursquare2 getVenuesVisitedByUser:@"self" callback:^(BOOL success, id result){
@@ -325,12 +354,29 @@
 			
 			
 			id groupsArr = [[result objectForKey:@"response"] objectForKey:@"groups"];
-			id itemsArr = [[groupsArr objectAtIndex:0] objectForKey:@"items"];
 			
-			filteredVenues = [[FSVenue venueArrayFromJson:itemsArr] retain];
-			//pastVenues = [[FSVenue venueArrayFromHistoryJson:venuesObject] retain];			  
-			
-			//[pastVenues sortUsingComparator:_sortByBeenHereCount];
+			if ( [groupsArr count] ) {
+				
+				id itemsArr = [[groupsArr objectAtIndex:0] objectForKey:@"items"];
+				
+				filteredVenues = [[FSVenue venueArrayFromJson:itemsArr] retain];
+				
+				for (FSVenue * venue in filteredVenues) {
+					CLLocationCoordinate2D loc = [Locator instance].location.coordinate;
+					double myLat = loc.latitude;
+					double myLng = loc.longitude;
+					venue.distanceFromMe = geo_distance(venue.lat, venue.lng, myLat, myLng, 'M');
+				}
+				
+				searchResultsVenues = [filteredVenues mutableCopy];
+				
+			} else {
+				
+				filteredVenues = [[NSMutableArray alloc] init];
+				SimpleMessageObject * noResults = [[SimpleMessageObject alloc] init];
+				noResults.message = [NSString stringWithFormat:@"No Results for %@ " , str];
+				[filteredVenues addObject:noResults];
+			}
 			
 			[self performSelectorOnMainThread:@selector(searchResultsLoaded) withObject:nil waitUntilDone:NO];
 			
@@ -405,15 +451,35 @@
 #pragma mark -
 #pragma mark Table view data source
 
-// Customize the number of sections in the table view.
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    
-	return 1;
+- (NSString *)tableView:(UITableView *)_tableView titleForHeaderInSection:(NSInteger)section {
+	
+	NSArray * arr = [self arrayForTableView:_tableView andMode:viewMode];
+	if ( arr && arr == nearbyVenues ) {
+		
+		FSDataSection * sec = (FSDataSection*)[arr objectAtIndex:section];
+		return sec.title;
+		
+	} else {
+		return nil;
+	}
+	
 	
 }
 
+
+// Customize the number of sections in the table view.
+- (NSInteger) numberOfSectionsInTableView:(UITableView *)_tableView {
+    
+	NSArray * arr = [self arrayForTableView:_tableView andMode:viewMode];
+	if ( arr && arr == nearbyVenues ) {
+		//NSLog(@"asking for num sections: %i " , [arr count]);
+		return [arr count];
+	} else {
+		return 1;
+	}
+}
+
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-	
 	
 	return 54;
 	
@@ -443,9 +509,22 @@
 // Customize the number of rows in the table view.
 - (NSInteger)tableView:(UITableView *)_tableView numberOfRowsInSection:(NSInteger)section {
     
+
 	NSArray * arr = [self arrayForTableView:_tableView andMode:viewMode];
 	
-	return [arr count];
+	if ( arr && arr == nearbyVenues ) {
+		
+		FSDataSection * sec = (FSDataSection*)[arr objectAtIndex:section];
+		
+		//NSLog(@"asking num rows in scction %i  - %i " , section, [sec.data count] );
+		return [sec.data count];
+		
+		
+	} else {
+		return [arr count];
+	}
+		
+	
 	
 }
 
@@ -456,16 +535,58 @@
 	NSArray * arr = [self arrayForTableView:_tableView andMode:viewMode];
 	
     static NSString *CellIdentifier = @"VenueCell";
-    
-    FSFavVenueCell *cell = [_tableView dequeueReusableCellWithIdentifier:CellIdentifier];
-    if (cell == nil) {
-        cell = [[[FSFavVenueCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
-    }
-    
-	FSVenue * ven = [arr objectAtIndex:indexPath.row];
-	cell.venue = ven;
+    static NSString *CellIdentifierNormal = @"NormalCell";
+	UITableViewCell * theCell = nil;
 	
-    return cell;
+	id obj = nil;
+	
+	if ( arr && arr == nearbyVenues ) {
+		FSDataSection * sec = (FSDataSection*)[arr objectAtIndex:indexPath.section];
+		obj = [sec.data objectAtIndex:indexPath.row];	
+	} else {
+		obj = [arr objectAtIndex:indexPath.row];	
+	}
+	
+	
+	
+	if ( [obj isKindOfClass:[FSVenue class]] ) {
+		
+		FSVenue * ven = (FSVenue*)obj;
+		
+		FSFavVenueCell *cell = [_tableView dequeueReusableCellWithIdentifier:CellIdentifier];
+		if (cell == nil) {
+			cell = [[[FSFavVenueCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+		}
+		
+		cell.venue = ven;
+		
+		theCell = cell;
+		
+    } else if ( [obj isKindOfClass:[SimpleMessageObject class]] ) {
+		
+		SimpleMessageObject * sM = (SimpleMessageObject*)obj;
+		
+		UITableViewCell *cell = [_tableView dequeueReusableCellWithIdentifier:CellIdentifierNormal];
+		if (cell == nil) {
+			cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifierNormal] autorelease];
+		}
+		
+		cell.text = sM.message;
+		
+		theCell = cell;
+		
+		
+	} else {
+		NSLog(@"bad cell obj");
+	}
+	
+	
+	
+	
+	
+	
+	
+    return theCell;
 }
 
 
@@ -514,18 +635,42 @@
 
 - (void)tableView:(UITableView *)_tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     
-	
 	[_tableView deselectRowAtIndexPath:indexPath animated:YES];
-	NSLog(@"select venue");
 	
 	NSArray * arr = [self arrayForTableView:_tableView andMode:viewMode];
 	
-	FSVenue * ven = [arr objectAtIndex:indexPath.row];
+	id obj = nil;
+
 	
+	if ( arr && arr == nearbyVenues ) {
+		FSDataSection * sec = (FSDataSection*)[arr objectAtIndex:indexPath.section];
+		obj = [sec.data objectAtIndex:indexPath.row];	
+	} else {
+		obj = [arr objectAtIndex:indexPath.row];	
+	}
 	
-	[ven markAsFavorite];
-	
-	
+	if ( [obj isKindOfClass:[FSVenue class]] ) {
+		
+		FSVenue * ven = (FSVenue*)obj;
+		
+		ven.animateFavoriteChangeInCell = YES;
+		
+		if ( ven.isLocalFavorite ) {
+			[ven unFavorite];
+		} else {
+			[ven markAsFavorite];
+		}
+		
+		[_tableView reloadRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
+		
+	} else if ( [obj isKindOfClass:[SimpleMessageObject class]] ) {
+		
+		//SimpleMessageObject * sM = (SimpleMessageObject*)obj;
+		// perform online search...
+		NSString * txt = [searchBar.text copy];
+		[self searchForVenueWithString:txt];
+		
+	}
 	
 	
 }
@@ -670,7 +815,21 @@
 	}
 	
 	if ( nearbyVenues != nil ) {
-		for (FSVenue * ven in nearbyVenues) {
+		
+		for (FSDataSection * section in nearbyVenues) {
+			for (FSVenue * ven in section.data) {
+				
+				if ( [[ven.name lowercaseString] rangeOfString:[searchText lowercaseString]].length > 0 ) {
+					[filteredVenues addObject:ven];
+				}
+				
+			}
+		}
+		
+	}
+	
+	if ( searchResultsVenues != nil ) {
+		for (FSVenue * ven in searchResultsVenues) {
 			
 			if ( [[ven.name lowercaseString] rangeOfString:[searchText lowercaseString]].length > 0 ) {
 				[filteredVenues addObject:ven];
@@ -682,9 +841,11 @@
 	
 	if ( [filteredVenues count] == 0 ) {
 		
-		FSVenue * ven = [[FSVenue alloc] init];
-		ven.name = @"Press Search for more results";
-		[filteredVenues addObject:ven];
+		//FSVenue * ven = [[FSVenue alloc] init];
+		//ven.name = @"Press Search for more results";
+		SimpleMessageObject * placeHolder = [[SimpleMessageObject alloc ]init];
+		placeHolder.message = @"Tap for Online results..";
+		[filteredVenues addObject:placeHolder];
 		
 	}
 	

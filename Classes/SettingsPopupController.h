@@ -16,14 +16,44 @@
 	IBOutlet UINavigationBar * titleBar;
 	
 	GenderPreference startPref;
+	int initialRange;
 	
+	
+	IBOutlet UIButton * workButton;
+	IBOutlet UIButton * schoolsButton;
+	IBOutlet UIButton * shopsButton;
+	IBOutlet UIButton * travelButton;
+	IBOutlet UIButton * nightlifeButton;
+	IBOutlet UIButton * outdoorsButton;
+	IBOutlet UIButton * foodButton;
+	IBOutlet UIButton * artsButton;
+	
+	IBOutlet UISlider * rangeSlider;
+	IBOutlet UILabel * rangeLabel;
+	
+	int rangeMap[8];
 	
 }
+
+-(IBAction) rangeChanged;
 
 -(IBAction) genderPrefClicked;
 -(IBAction) radiusChanged;
 -(IBAction) closeClicked;
 
 -(IBAction) logoutClicked;
+
+
+// fix this crap...
+-(IBAction) workButtonClicked;
+-(IBAction) schoolsButtonClicked;
+-(IBAction) shopsButtonClicked;
+-(IBAction) travelButtonClicked;
+-(IBAction) nightlifeButtonClicked;
+-(IBAction) outdoorsButtonClicked;
+-(IBAction) foodButtonClicked;
+-(IBAction) artsButtonClicked;
+
+
 
 @end

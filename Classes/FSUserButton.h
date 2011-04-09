@@ -16,6 +16,7 @@
 @interface FSUserButton : UIView {
 	
 	EGOImageView * imgView;
+	UIImageView * frameImageView;
 	
 	UILabel * infoLabel;
 	

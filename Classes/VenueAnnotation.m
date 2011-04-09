@@ -12,7 +12,7 @@
 @implementation VenueAnnotation
 
 @synthesize venue;
-
+@synthesize canShowDetails;
 
 - (CLLocationCoordinate2D)coordinate;
 {
@@ -36,7 +36,23 @@
 // optional
 - (NSString *)subtitle
 {
-    return @"Click for details";
+    if ( self.canShowDetails ) {
+		return @"Click for details";
+	} else {
+		
+		NSString * str;
+		if ( venue.distanceFromMe > 0.09 ) {
+			str = [NSString stringWithFormat:@"%i Girl%@, %i Guy%@   %3.1f Miles" , venue.numGirlsHere, (venue.numGirlsHere==1?@"":@"s"),  venue.numGuysHere, (venue.numGuysHere==1?@"":@"s") , venue.distanceFromMe ];
+		} else {
+			int feet = (venue.distanceFromMe*5280.0);
+			feet = feet - (feet % 100);
+			str = [NSString stringWithFormat:@"%i Girl%@, %i Guy%@   %i Feet" , venue.numGirlsHere, (venue.numGirlsHere==1?@"":@"s"),  venue.numGuysHere, (venue.numGuysHere==1?@"":@"s") , feet ];
+		}
+		
+		return str;
+		
+	}
+	
 }
 
 

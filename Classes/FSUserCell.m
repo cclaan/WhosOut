@@ -19,12 +19,12 @@
     if (self) {
         // Initialization code.
 		
-		profileImageView = [[EGOImageView alloc] initWithFrame:CGRectMake(0, 0, 64, 64)];
+		profileImageView = [[EGOImageView alloc] initWithFrame:CGRectMake(2, 2, 60, 60)];
 		profileImageView.placeholderImage = [UIImage imageNamed:@"default-profile-image.png"];
 		[self.contentView addSubview:profileImageView];
 		
-		self.contentView.backgroundColor = [UIColor darkGrayColor];
-		self.backgroundColor = [UIColor darkGrayColor];
+		self.contentView.backgroundColor = [UIColor clearColor];
+		self.backgroundColor = [UIColor clearColor];
 		
 		nameLabel = [[UILabel alloc] init];
 		nameLabel.font = [UIFont boldSystemFontOfSize:22];

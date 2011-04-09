@@ -30,11 +30,19 @@
     
 	[super viewDidLoad];
 	
-	UIImageView * imgView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bar-logo-backwards.png"]];
-	imgView.contentMode = UIViewContentModeCenter;
+	//UIImageView * imgView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bar-logo-backwards.png"]];
+	//imgView.contentMode = UIViewContentModeCenter;
+	//titleBar.topItem.titleView = imgView;
+	titleBar.topItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"custom-navbar-logo.png"]];
 	
-	titleBar.topItem.titleView = imgView;
-	
+
+	rangeMap[0] = 100;
+	rangeMap[1] = 200;
+	rangeMap[2] = 500;
+	rangeMap[3] = 1000;
+	rangeMap[4] = 2000;
+	rangeMap[5] = 3000;
+	rangeMap[6] = 5000;
 	
 	
 	//UINavigationBar
@@ -51,6 +59,9 @@
 	
 	startPref = g;
 	
+	initialRange = [Model instance].nearbySearchRange;
+	
+	
 	if ( g == GENDER_PREFERENCE_ALL ) {
 		genderSegment.selectedSegmentIndex = 2;
 	} else if ( g == GENDER_PREFERENCE_MALES ) {
@@ -58,6 +69,19 @@
 	} else if ( g == GENDER_PREFERENCE_FEMALES ) { 
 		genderSegment.selectedSegmentIndex = 1;
 	}
+	
+	int rng = [Model instance].nearbySearchRange;
+	NSLog(@"initial range: %i " , rng );
+	
+	for (int i = 0; i < 7; i++) {
+		if ( rangeMap[i] == rng ) { 
+			radiusSlider.value = (float)i; 
+			[self radiusChanged];
+		}
+	}
+	
+	
+	[self setButtonImages];
 		
 }
 
@@ -70,6 +94,13 @@
 		[[NSNotificationCenter defaultCenter] postNotificationName:kGenderChangedNotification object:nil];	
 	}
 	
+	GenderPreference rng = [Model instance].nearbySearchRange;
+	
+	if ( initialRange != rng ) {
+		//[[NSNotificationCenter defaultCenter] postNotificationName:kGenderChangedNotification object:nil];	
+		[[Model instance] startLocationAndFindNearbyVenues];
+		
+	}
 	
 	[self dismissModalViewControllerAnimated:YES];
 	
@@ -98,6 +129,7 @@
 	
 }
 
+
 -(IBAction) logoutClicked {
 	
 	[[NSNotificationCenter defaultCenter] postNotificationName:kFSShouldLogoutNotification object:nil];
@@ -107,7 +139,86 @@
 	
 }
 
+-(IBAction) workButtonClicked {
+	
+	[[Model instance] toggleBannedCategoryString:kWorkCategoryString];
+	[self setButtonImages];
+	
+}
+
+-(IBAction) schoolsButtonClicked {
+	
+	[[Model instance] toggleBannedCategoryString:kSchoolsCategoryString];
+	[self setButtonImages];
+	
+}
+
+-(IBAction) shopsButtonClicked {
+	
+	[[Model instance] toggleBannedCategoryString:kShopsCategoryString];
+	[self setButtonImages];
+	
+}
+
+-(IBAction) travelButtonClicked {
+	
+	[[Model instance] toggleBannedCategoryString:kTravelCategoryString];
+	[self setButtonImages];
+	
+}
+
+-(IBAction) nightlifeButtonClicked {
+	
+	[[Model instance] toggleBannedCategoryString:kNightlifeCategoryString];
+	[self setButtonImages];
+	
+}
+
+-(IBAction) outdoorsButtonClicked {
+	
+	[[Model instance] toggleBannedCategoryString:kOutdoorsCategoryString];
+	[self setButtonImages];
+	
+}
+
+-(IBAction) foodButtonClicked {
+	
+	[[Model instance] toggleBannedCategoryString:kFoodCategoryString];
+	[self setButtonImages];
+	
+}
+
+-(IBAction) artsButtonClicked {
+	
+	[[Model instance] toggleBannedCategoryString:kArtsCategoryString];
+	[self setButtonImages];
+	
+}
+
+-(void) setButtonImages {
+	
+	
+	schoolsButton.selected = ![[Model instance] isBannedCategoryString:kSchoolsCategoryString];
+	workButton.selected = ![[Model instance] isBannedCategoryString:kWorkCategoryString];
+	nightlifeButton.selected = ![[Model instance] isBannedCategoryString:kNightlifeCategoryString];
+	artsButton.selected = ![[Model instance] isBannedCategoryString:kArtsCategoryString];
+	travelButton.selected = ![[Model instance] isBannedCategoryString:kTravelCategoryString];
+	foodButton.selected = ![[Model instance] isBannedCategoryString:kFoodCategoryString];
+	shopsButton.selected = ![[Model instance] isBannedCategoryString:kShopsCategoryString];
+	outdoorsButton.selected = ![[Model instance] isBannedCategoryString:kOutdoorsCategoryString];
+	
+	
+}
+
 -(IBAction) radiusChanged {
+	
+	int ind = (int)radiusSlider.value;
+	
+	int range = rangeMap[ind];
+	
+	[Model instance].nearbySearchRange = range;
+	
+	rangeLabel.text = [NSString stringWithFormat:@"Show people within %i meters" , range ];
 	
 }
 

@@ -27,11 +27,16 @@ static Model *instance = nil;
 
 @synthesize hostReach, hasInternet;
 
-@synthesize genderPreference;
+@synthesize genderPreference, nearbySearchRange;
 
 @synthesize mainWindow, viewForHUD;
 
-@synthesize venuesArray , isLoadingNearbyVenues , favoritesAreOutOfDate, favoriteUsersAreOutOfDate;
+@synthesize venuesArray , isLoadingNearbyVenues;
+//@synthesize favoritesAreOutOfDate, favoriteUsersAreOutOfDate;
+
+@synthesize bannedCategories;
+
+@synthesize chosenLocation;
 
 #pragma mark -
 #pragma mark setup
@@ -42,7 +47,9 @@ static Model *instance = nil;
 	
 	[self initDb];
 	
-	favoritesAreOutOfDate = YES;
+	self.chosenLocation = nil;
+	
+	//--favoritesAreOutOfDate = YES;
 	
 	_sortByClosestFirst = ^ NSComparisonResult (id obj1, id obj2) {
 		
@@ -58,6 +65,8 @@ static Model *instance = nil;
 		
 	};
 	
+	
+	[self refreshCategoryPreferences];
 		
 	[[NSNotificationCenter defaultCenter] addObserver: self selector: @selector(reachabilityChanged:) name: kReachabilityChangedNotification object: nil];
 	hostReach = [[Reachability reachabilityWithHostName: @"www.google.com"] retain];
@@ -81,6 +90,17 @@ static Model *instance = nil;
 	}
 	
 	
+	val = [[NSUserDefaults standardUserDefaults] valueForKey:kNearbySearchRangePref];
+	
+	if ( val == nil ) {
+		val = [NSNumber numberWithInt:5000];
+		self.nearbySearchRange = [val intValue];
+	} else {
+		// no setter...
+		nearbySearchRange = [val intValue];
+	}
+	
+	
 	
 }
 
@@ -95,13 +115,23 @@ static Model *instance = nil;
 	//isLocating = YES;
 	
 	[self setLoading:YES withMessage:@"Locating..."];
+	hud.mode = MBProgressHUDModeIndeterminate;
 	
-	[Locator instance].currentDesiredAccuracy = 1500;
-	[Locator instance].location = nil;
-	[[Locator instance] start];
 	
-	[self performSelector:@selector(locationLoop) withObject:nil afterDelay:0.9];
-	
+	if ( self.chosenLocation == nil ) {
+	//if ( CLLocationCoordinate2DIsValid(self.chosenLocation) ) {
+		
+		[Locator instance].currentDesiredAccuracy = 1500;
+		[Locator instance].location = nil;
+		[[Locator instance] start];
+		
+		[self performSelector:@selector(locationLoop) withObject:nil afterDelay:0.9];
+		
+	} else {
+		
+		[self findPeople];
+		
+	}
 }
 
 
@@ -116,7 +146,7 @@ static Model *instance = nil;
 		if ( [Locator instance].hasReceivedError ) {
 			
 			//[self stopLoading];
-			
+			NSLog(@"had err!");
 			//isLocating = NO;
 			
 			//ALERT
@@ -189,20 +219,57 @@ static Model *instance = nil;
 	
 }
 
--(void) showApiError {
+/*
+-(CLLocationCoordinate2D*) chosenLocation {
+
 	
-	UIAlertView * al = [[UIAlertView alloc] initWithTitle:@"Oops" message:@"The internet isn't behaving, please try again later!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
-	[al show];
-	[al release];
+}
+
+-(void) setChosenLocation:(CLLocationCoordinate2D *)c {
 	
-	[self stopLoading];
+	chosenLocation = c;
+	
+	[NSUserDefaults standardUserDefaults]
+	
+	
+}
+*/
+
+
+-(void) delayedShowApiError {
+	
+	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(showApiError) object:nil];
+	[self performSelector:@selector(showApiError) withObject:nil afterDelay:1.4];
 	
 }
 
 
+-(void) showApiError {
+	
+	UIAlertView * al = [[UIAlertView alloc] initWithTitle:@"Oops" message:@"FourSqaure or the internet isn't behaving, you may have exceeded your FourSquare API limit. Please try again later!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+	[al show];
+	[al release];
+	
+	//[self stopLoading];
+	
+}
+
+/*
+-(void) showNoVenues {
+
+	UIAlertView * al = [[UIAlertView alloc] initWithTitle:@"No Venues" message:@"No one is checked in around here, to manually set a location, tap and hold somewhere on the map." delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
+	[al show];
+	[al release];
+	[self stopLoading];
+	
+}
+
+*/
+ 
 
 -(void) findPeople {
 	
+	numberOfVenuesRetrieved = 0;
 	
 	//loc = [Locator instance].location;
 	
@@ -212,38 +279,88 @@ static Model *instance = nil;
 	
 	hud.labelText = @"Looking...";
 	
+	
 	[self notifyVenuesUpdateStarted];
 		
 	[venuesArray removeAllObjects];
 	[venuesArray release];
 	venuesArray = nil;
 	
-	[Foursquare2 getTrendingVenuesNearByLatitude:[Locator instance].latString longitude:[Locator instance].lonString radius:@"5000" limit:@"50" callback:^(BOOL success,id result){
+	NSString * latString = nil;
+	NSString * longString = nil;
+	
+	//if ( CLLocationCoordinate2DIsValid(self.chosenLocation) ) {
+	if ( self.chosenLocation ) {
 		
+		latString = [NSString stringWithFormat:@"%f",self.chosenLocation.coordinate.latitude];
+		longString = [NSString stringWithFormat:@"%f",self.chosenLocation.coordinate.longitude];
+		
+	} else {
+		latString = [Locator instance].latString;
+		longString = [Locator instance].lonString;
+	}
+	
+	NSLog(@"looking near: %@ , %@ ",latString,longString);
+	numberOfVenuesToQuery = 0;
+	
+	//100 - 5000 
+	// 300
+	// 500
+	// 1000
+	// 2000
+	// 5000
+	
+	NSString * rangeString = [NSString stringWithFormat:@"%i" , self.nearbySearchRange ];
+	
+	[Foursquare2 getTrendingVenuesNearByLatitude:latString longitude:longString radius:rangeString limit:@"50" callback:^(BOOL success,id result){
+		
+		hud.mode = MBProgressHUDModeDeterminate;
+		hud.progress = 0.0;
 		
 		if ( !success ) {
 			
-			[self performSelectorOnMainThread:@selector(showApiError) withObject:nil waitUntilDone:YES];			
+			[self performSelectorOnMainThread:@selector(delayedShowApiError) withObject:nil waitUntilDone:YES];			
 			return;
 		}
 		
-		//NSLog(@"got stuff: %@ , %@ " , result , [result class]);
-		
+		NSLog(@"got stuff: %@ , %@ " , result , [result class]);
+		//NSLog(@"got stuff");
+			  
 		NSArray * tempVenues = [[result objectForKey:@"response"] objectForKey:@"venues"];
 		
 		tempVenues = [FSVenue venueArrayFromJson:tempVenues];
 		
+		if ( [tempVenues count]==0 ) {
+			
+			//[self performSelectorOnMainThread:@selector(showNoVenues) withObject:nil waitUntilDone:YES];
+			[self performSelectorOnMainThread:@selector(notifyVenuesUpdated) withObject:nil waitUntilDone:YES];			
+			
+			return;
+		}
+		
+		
 		venuesArray = [[NSMutableArray alloc] init];
 		
 		numberOfVenuesToQuery = [tempVenues count];
+		//__block float numGot = 0;
 		
 		for (FSVenue * ven in tempVenues) {
 			
-			//NSLog(@"Name: %@ " , ven.name );
+			// - NSLog(@"Name: %@ , peeps here: %i  " , ven.name , ven.numPeopleHere );
 			
 			[Foursquare2 getDetailForVenue:ven.venueId callback:^(BOOL success, id result2){
 				
-				if ( !success ) return;
+				//NSLog(@"first venue");
+				
+				numberOfVenuesRetrieved ++;
+				hud.progress = ((float)numberOfVenuesRetrieved / (float)numberOfVenuesToQuery);
+				
+				if ( !success ) {
+					NSLog(@"nosucc, %@" , result2 );
+					[self performSelectorOnMainThread:@selector(delayedShowApiError) withObject:nil waitUntilDone:YES];
+					[self performSelectorOnMainThread:@selector(delayedNotify) withObject:nil waitUntilDone:NO];	
+					return;
+				}
 				
 				FSVenue * venue = [FSVenue venueFromJson:[[result2 objectForKey:@"response"] objectForKey:@"venue"]];
 				[venuesArray addObject:venue];
@@ -258,7 +375,7 @@ static Model *instance = nil;
 				venue.distanceFromMe = geo_distance(venue.lat, venue.lng, myLat, myLng, 'M');
 				
 				
-				NSLog(@"venue: %@ , people there: %i , lat: %f , dist: %f " , venue.name , [venue.peopleHere count] , venue.lat , venue.distanceFromMe );
+				//NSLog(@"venue: %@ , people there: %i , lat: %f , dist: %f " , venue.name , [venue.peopleHere count] , venue.lat , venue.distanceFromMe );
 				
 				//[self performSelectorOnMainThread:@selector(showUsersFromVenue:) withObject:venue waitUntilDone:NO];	
 				
@@ -288,14 +405,20 @@ static Model *instance = nil;
 
 -(void) notifyVenuesUpdated {
 	
-	NSLog(@"num: %i , count: %i " , numberOfVenuesToQuery , [venuesArray count] );
+	NSLog(@"notifyVenuesUpdated -- numberOfVenuesToQuery: %i , venuesArray count: %i " , numberOfVenuesToQuery , [venuesArray count] );
 	
-	if ( [venuesArray count] == numberOfVenuesToQuery ) {
+	[self sortVenuesByDistance];
+	
+	if ( numberOfVenuesRetrieved == numberOfVenuesToQuery ) {
+		
 		[self stopLoading];
+		[[NSNotificationCenter defaultCenter] postNotificationName:kVenuesUpdateFinishedNotification object:nil];
+		
+	} else {
+	
+		[[NSNotificationCenter defaultCenter] postNotificationName:kVenuesUpdatedNotification object:nil];
+	
 	}
-	
-	[[NSNotificationCenter defaultCenter] postNotificationName:kVenuesUpdatedNotification object:nil];
-	
 }
 
 -(void) notifyVenuesUpdateStarted {
@@ -306,7 +429,6 @@ static Model *instance = nil;
 
 -(void) sortVenuesByDistance {
 	
-	
 	[venuesArray sortUsingComparator:_sortByClosestFirst];
 	
 	
@@ -315,7 +437,16 @@ static Model *instance = nil;
 
 
 #pragma mark -
+#pragma mark User Defaults
 
+-(void) setNearbySearchRange:(int) s {
+	
+	nearbySearchRange = s;
+	
+	[[NSUserDefaults standardUserDefaults] setValue:[NSNumber numberWithInt:nearbySearchRange] forKey:kNearbySearchRangePref];
+	[[NSUserDefaults standardUserDefaults] synchronize];
+	
+}
 
 -(void) setGenderPreference:(GenderPreference) g {
 	
@@ -398,14 +529,15 @@ static Model *instance = nil;
 
 #pragma mark Local Stuff...
 
--(void) refreshLocalFavorites {
+-(void) refreshLocalFavoriteVenues {
 	
 	[favoriteVenues release];
 	favoriteVenues = nil;
 	
 	favoriteVenues = [[FSVenue getLocalFavorites] retain];
 	
-	favoritesAreOutOfDate = YES;
+	//favoritesAreOutOfDate = YES;
+	[[NSNotificationCenter defaultCenter] postNotificationName:kFavoriteVenuesWereAddedNotification object:nil];
 	
 	NSLog(@"Have %i favs!" , [favoriteVenues count]);
 	
@@ -415,7 +547,7 @@ static Model *instance = nil;
 -(NSMutableArray*) favoriteVenues {
 	
 	if ( favoriteVenues == nil ) {
-		[self refreshLocalFavorites];
+		[self refreshLocalFavoriteVenues];
 	}
 	
 	return favoriteVenues;
@@ -437,7 +569,7 @@ static Model *instance = nil;
 // dont call this directly...
 -(void) removeFavoriteVenue:(FSVenue*)ven {
 	
-	/*
+	
 	FSVenue * venToRemove = nil;
 	
 	for (FSVenue * venue in self.favoriteVenues ) {
@@ -450,11 +582,13 @@ static Model *instance = nil;
 	
 	if ( venToRemove ) { 
 		[[Model instance].favoriteVenues removeObject:venToRemove];
+		//favoritesAreOutOfDate = YES;
+		//favoritesWereRemoved = YES;
+		[[NSNotificationCenter defaultCenter] postNotificationName:kFavoriteVenuesWereRemovedNotification object:nil];
 	}
-	*/
+	
 	
 	// look for this venue in the places it might be
-	
 	for (FSVenue * venue in self.venuesArray ) {
 		
 		if ( [venue.venueId isEqualToString:ven.venueId] ) {
@@ -469,7 +603,7 @@ static Model *instance = nil;
 // dont call this directly...
 -(void) addFavoriteVenue:(FSVenue*)ven {
 	
-	
+	// maybe it's in the nearby venues array 
 	for (FSVenue * venue in self.venuesArray ) {
 		
 		if ( [venue.venueId isEqualToString:ven.venueId] ) {
@@ -478,7 +612,7 @@ static Model *instance = nil;
 		
 	}
 	
-	/*
+	// if its not already in the favs, add it...
 	FSVenue * venToAdd = nil;
 	
 	for (FSVenue * venue in self.favoriteVenues ) {
@@ -490,9 +624,11 @@ static Model *instance = nil;
 	}
 	
 	if ( !venToAdd ) { 
+		//favoritesAreOutOfDate = YES;
+		[[NSNotificationCenter defaultCenter] postNotificationName:kFavoriteVenuesWereAddedNotification object:nil];
 		[[Model instance].favoriteVenues addObject:ven];
 	}
-	*/
+	
 	
 }
 
@@ -506,7 +642,8 @@ static Model *instance = nil;
 	
 	favoriteUsers = [[FSUser getLocalFavorites] retain];
 	
-	favoriteUsersAreOutOfDate = YES;
+	// use notifications instead..
+	// favoriteUsersAreOutOfDate = YES;
 	
 	NSLog(@"Have %i fav users!" , [favoriteUsers count]);
 	
@@ -533,6 +670,118 @@ static Model *instance = nil;
 		
 	}
 	
+}
+
+#pragma -
+#pragma mark prefs
+
+-(BOOL) isBannedCategory:(FSCategory*)cat {
+	
+	//NSLog(@"isBannedCategory: %@ --  %@ " , cat , bannedCategories );
+	
+	if ( cat == nil || cat.name == nil ) {
+		return [self.bannedCategories containsObject:@"nils"];
+	} else {
+		return [self.bannedCategories containsObject:cat.name];
+	}
+}
+
+-(void) toggleBannedCategoryString:(NSString*)str {
+	
+	if ( [self isBannedCategoryString:str] ) {
+		[self removeBannedCategoryString:str];
+	} else {
+		[self addBannedCategoryString:str];
+	}
+	
+}
+
+-(BOOL) isBannedCategoryString:(NSString*)str {
+	
+	if ( !str ) {
+		return [self.bannedCategories containsObject:@"nils"];
+	} else {
+		return [self.bannedCategories containsObject:str];
+	}
+	
+}
+
+-(void) removeBannedCategory:(FSCategory*)cat {
+	
+	if ( cat == nil || cat.name == nil ) {
+		[self.bannedCategories removeObject:@"nils"];
+	} else {
+		[self.bannedCategories removeObject:cat.name];
+	}
+	
+	
+	[self saveCategoryPreferences];
+	
+}
+
+-(void) addBannedCategory:(FSCategory*)cat {
+	
+	if ( cat == nil || cat.name == nil ) {
+		[self.bannedCategories addObject:@"nils"];
+	} else {
+		[self.bannedCategories addObject:cat.name];
+	}
+
+	[self saveCategoryPreferences];
+		
+}
+		
+
+-(void) removeBannedCategoryString:(NSString*)cat {
+	
+	if ( cat == nil ) {
+		[self.bannedCategories removeObject:@"nils"];
+	} else {
+		[self.bannedCategories removeObject:cat];
+	}
+	
+	
+	[self saveCategoryPreferences];
+	
+}
+
+-(void) addBannedCategoryString:(NSString*)cat {
+	
+	if ( cat == nil ) {
+		[self.bannedCategories addObject:@"nils"];
+	} else {
+		[self.bannedCategories addObject:cat];
+	}
+	
+	[self saveCategoryPreferences];
+	
+}
+
+		 
+
+-(void) saveCategoryPreferences {
+
+	
+	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+	NSString *documentsDirectory = [paths objectAtIndex:0];
+	NSString *archivePath = [documentsDirectory stringByAppendingPathComponent:@"banned_cats.archive"];
+	
+	[NSKeyedArchiver archiveRootObject:bannedCategories toFile:archivePath];
+
+	
+}
+
+-(void) refreshCategoryPreferences {
+
+	NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+	NSString *documentsDirectory = [paths objectAtIndex:0];
+	NSString *archivePath = [documentsDirectory stringByAppendingPathComponent:@"banned_cats.archive"];
+	
+	self.bannedCategories = [NSKeyedUnarchiver unarchiveObjectWithFile:archivePath];
+	
+	if ( !bannedCategories ) {
+		self.bannedCategories = [NSMutableSet set];
+	}
 }
 
 

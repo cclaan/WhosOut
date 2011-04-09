@@ -1,17 +1,92 @@
-Limit nearby to some number of calls? 
- - load more pull up ?
+better icon
 
-make range work
+design user detail if any -- "add as friend" , a few other stats, maybe friends ?
 
-nice no venues / map / favs views
-
-sections on tableview
-
-design a few things for overall appearance
+user detail has to be spiffed, esp if i take out fav people
 
 fav people get twitter / FSQ ? -- at least # checkins or friends.. or take it out ?
+-----
+user detail:
+ anyone: 
+  - # checkins
+  - # mutual friends, # total friends
+    -- mutual friend list
+  - twitter
+  - facebook possibly
+    -- get photos on FB ?
+  - 'add as friend'
+
+ 
+ friends: 
+  - last checkin 
+  - friends list ? or mutual friends? 
+  - phone number 
+  - email 
+  - unfriend
+  
+
+venue detail with tweets:
+search for: 4sq.com "electric factory"
+
+
+----- v 1.5 ...
+
+Limit nearby to some number of calls?  -- its limited to 50 anyway.... but maybe top 30 ?
+
+popular spots instead of clicking map... settings and on map page ?
+
+think a little about the category situation.. ie, making a call first ?-- internet matching ?
+
+** didBecomeActive needs to have a date refresh
+
+instead of 'Nearby' change to 'People Out' ? -- with people icons
+
+map no venues / -- a ruby style alert that says 'tap and hold' type
+
+"last refreshed 2:54" on pull downs
+
+focus on sorting before you load the data... if it has lat lngs already ? what to sort by,,, on 3g you want to see stuff right away ?
+- see if using the nearby and then sorting by hereNow gives more than trending 
+
+include user location in Rect only if within 10 miles or so ?
+* show favs on map only if within certain radius ?
+
+alert for API limit ? 
+ - i can check headers on an error... 'Looks like we've run out of API requests'
 
 do some 3G testing for NYC and other spots 
+ -- add arbitrary pause in there
+
+Conditions met, hasReceivedLocation.. stopping 
+ - happens cuz of 4 second delay to stop... make sure nothing bad happens here
+
+
+
+///make range work
+////numbers on map dont update when you change gender pref
+
+/// directions - 'leave app for directions' -- not sure anyone would ever use this
+
+/// design settings page
+//// sections on tableview for picker ?
+/// bug of when the scroll view is too short, ignore refreshes from 
+//// - also turn off UI inter when no venues
+
+////map pins animate too much ... each display
+
+//// mouse down on labels and profile images
+////make thumbs have lighter BG, not black before loading image
+///default icon on the category type
+
+//// venue detail dont allow 'show details' on callout
+/////tweak light on bottom bar in venue detail
+///// make other venuepeopledetail use new detail
+///timer on pull to refresh a little better
+//// design a few things for overall appearance
+/// nice no venues /
+///favs views
+///hanging calls seem to happen a lot.. favs 
+//// 'tap to add favs' like beluga
 
 -----
 

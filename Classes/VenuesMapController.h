@@ -10,6 +10,9 @@
 #import "FSObjects.h"
 #include <MapKit/MapKit.h>
 #include <MapKit/MKAnnotation.h>
+#import "VenueAnnotation.h"
+#import "SimpleAnnotation.h"
+
 
 @class MKAnnotation;
 
@@ -22,6 +25,10 @@
 	IBOutlet UIBarButtonItem * callButton;
 	
 	BOOL venuesDisplayed;
+	BOOL dataOutOfDate;
+	
+	//VenueAnnotation * fakeLocation;
+	SimpleAnnotation * fakeLocation;
 	
 }
 

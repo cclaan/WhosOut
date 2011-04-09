@@ -12,12 +12,18 @@
 #import "MBProgressHUD.h"
 
 #import "GeoFunctions.h"
+#import <CoreLocation/CoreLocation.h>
 
 #define DATABASE_FILE @"cacheditems.sqlite3"
 
 #define kGenderChangedNotification @"GenderChangedNotification"
 #define kVenuesUpdatedNotification @"VenuesUpdatedNotification"
+#define kVenuesUpdateFinishedNotification @"VenuesUpdateFinishedNotification"
 #define kVenuesUpdateStartedNotification @"VenuesUpdateStartedNotification"
+
+#define kFavoriteVenuesWereRemovedNotification @"kFavoriteVenuesWereRemovedNotification"
+#define kFavoriteVenuesWereAddedNotification @"kFavoriteVenuesWereAddedNotification"
+
 
 //@class Reachability;
 
@@ -46,19 +52,32 @@ typedef enum GenderPreference {
 	int numberOfVenuesToQuery;
 	MBProgressHUD * hud;
 	
+	//CLLocationCoordinate2D * chosenLocation;
+	int numberOfVenuesRetrieved;
+	
+	CLLocation * chosenLocation;
+	
 	
 }
+
+//@property CLLocationCoordinate2D  chosenLocation;
+@property CLLocation * chosenLocation;
 
 // new ones
 @property BOOL isLoadingNearbyVenues;
 @property (nonatomic, retain) NSMutableArray * venuesArray;
 
-@property BOOL favoritesAreOutOfDate;
-@property BOOL favoriteUsersAreOutOfDate;
+//@property BOOL favoritesAreOutOfDate;
+//@property BOOL favoriteUsersAreOutOfDate;
 
 @property GenderPreference genderPreference;
 
 @property BOOL hasInternet;
+
+@property int nearbySearchRange;
+
+
+@property (nonatomic, retain) NSMutableSet * bannedCategories;
 
 @property (nonatomic, assign) UIView * mainWindow;
 @property (nonatomic, assign) UIView * viewForHUD;
@@ -75,9 +94,15 @@ typedef enum GenderPreference {
 -(BOOL) isVenueLocalFavorite:(FSVenue*)ven;
 -(void) removeFavoriteVenue:(FSVenue*)ven;
 -(void) addFavoriteVenue:(FSVenue*)ven;
--(void) refreshLocalFavorites;
+
+-(void) refreshLocalFavoriteVenues;
 
 -(void) startLocationAndFindNearbyVenues;
 
+-(BOOL) isBannedCategory:(FSCategory*)cat;
+-(BOOL) isBannedCategoryString:(NSString*)str;
+-(void) removeBannedCategory:(FSCategory*)cat;
+-(void) addBannedCategory:(FSCategory*)cat;
+-(void) toggleBannedCategoryString:(NSString*)str;
 
 @end

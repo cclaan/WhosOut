@@ -56,12 +56,13 @@
 	UIToolbar * toolBar = [[UIToolbar alloc] init];
 	//toolBar.barStyle = UIBarStyleBlack;
 	toolBar.translucent = YES;
-	toolBar.tintColor = [UIColor colorWithRed:0.0 green:0.4 blue:0.4 alpha:0.5];
+	//toolBar.tintColor = [UIColor colorWithRed:0.0 green:0.4 blue:0.4 alpha:0.5];
+	toolBar.tintColor = [UIColor colorWithRed:0.1 green:0.1 blue:0.1 alpha:0.65];
 	toolBar.frame = CGRectMake(0, 480-44-20, 320, 44);
 	UIBarButtonItem * closeButton = [[UIBarButtonItem alloc] initWithTitle:@"Cancel" style:UIBarButtonItemStyleDone target:self action:@selector(closeClicked)];
 	
 	//UIBarButtonItem * whosOutImage = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"bar-logo.png"] style:UIBarButtonItemStylePlain target:nil action:nil];
-	UIBarButtonItem * whosOutImage = [[UIBarButtonItem alloc] initWithCustomView:[[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bar-logo.png"]]];
+	UIBarButtonItem * whosOutImage = [[UIBarButtonItem alloc] initWithCustomView:[[UIImageView alloc] initWithImage:[UIImage imageNamed:@"custom-navbar-logo.png"]]];
 	
 	[toolBar setItems:[NSArray arrayWithObjects:closeButton,whosOutImage,nil]];
 	[self.view addSubview:toolBar];
@@ -73,7 +74,7 @@
 	
 	[self hideLoading];
 	//[self dismissModalViewControllerAnimated:YES];
-	[delegate performSelector:closeSelector];
+	//[delegate performSelector:closeSelector];
 	
 }
 

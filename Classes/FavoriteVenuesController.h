@@ -11,32 +11,44 @@
 #import "Foursquare2.h"
 #import "MBProgressHUD.h"
 #import "FSObjects.h"
+#import "UIScrollViewPullRefresh.h"
 
 
-@interface FavoriteVenuesController : UIViewController {
+@interface FavoriteVenuesController : UIViewController <PullToRefreshDelegate> {
 
 	BOOL isLoading;
 	
 	float currentYOffset;
 	
+	NSMutableArray * venuesThatNeedData;
 	NSMutableArray * venuesArray;
 	NSMutableArray * venueViews;
+	
+	
+	BOOL favoritesWereAddedSinceLastUpdate;
+	BOOL favoritesWereRemovedSinceLastUpdate;
 	
 	BOOL isLocating;
 	
 	int photoIndex;
 	
 	int numberOfVenuesToQuery;
+	int numberOfVenuesQueried;
 	
 	MBProgressHUD * hud;
 	
-	IBOutlet UIScrollView * scrollView;
+	IBOutlet UIScrollViewPullRefresh * scrollView;
 	
 	IBOutlet UITableView * tableView;
 	
 	NSComparisonResult (^_sortByClosestFirst)(id obj1, id obj2);
 	
-	UIView * noFavsView;
+	UIImageView * noFavsView;
+	UIImageView * noFavsArrow;
+	
+	//PullToRefreshManager * pullToRefresh;
+	
+	UILabel * statusLabel;
 	
 }
 

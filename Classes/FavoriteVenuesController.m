@@ -18,7 +18,8 @@
 #import "UserDetailController.h"
 #import "SettingsPopupController.h"
 #import "PickFavoriteVenuesController.h"
-#import "PickFavoriteVenuesControllerB.h"
+
+//#import "PullToRefreshManager.h"
 
 #import "Model.h"
 
@@ -33,21 +34,49 @@
 
 @implementation FavoriteVenuesController
 
+
 - (void)viewDidLoad {
     
 	[super viewDidLoad];
 	
+	if ( !venuesArray ) {
+		
+		venuesArray = [[NSMutableArray alloc] init];
+		venuesThatNeedData = [[NSMutableArray alloc] init];
+		
+	}
+	
+	
+	statusLabel = [[UILabel alloc] init];
+	statusLabel.font = [UIFont italicSystemFontOfSize:18];
+	statusLabel.backgroundColor = [UIColor clearColor];
+	statusLabel.textColor = [UIColor colorWithRGBHex:0xc7c392];
+	statusLabel.shadowColor = [UIColor colorWithRGBHex:0x0d2e4a];
+	statusLabel.shadowOffset = CGSizeMake(0, -1);
+	statusLabel.textAlignment = UITextAlignmentCenter;
+	statusLabel.frame = CGRectMake(0, 9, self.view.frame.size.width, 25);
+	statusLabel.text =  @"Your Favorite Venues";
+	[scrollView addSubview:statusLabel];
+	
+	scrollView.pullRefreshDelegate = self;
 	
 	self.title = @"Fav Venues";
-	self.navigationItem.title = @"Fav Venues";
-	//self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"bar-logo.png"]];
+	//self.navigationItem.title = @"Fav Venues";
+	self.navigationItem.titleView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"custom-navbar-logo.png"]];
 	//self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Ω" style:UIBarButtonItemStylePlain target:self action:@selector(settingsClicked)];
-	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"settings-bar-button.png"] style:UIBarButtonItemStylePlain target:self action:@selector(settingsClicked)];
 	
+	self.navigationItem.rightBarButtonItem = [UIBarButtonItem itemWithButtonImage:[UIImage imageNamed:@"settings-bar-button.png"] target:self action:@selector(settingsClicked)];
+	
+	//self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"settings-bar-button.png"] style:UIBarButtonItemStylePlain target:self action:@selector(settingsClicked)];
 	//self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"refresh-icon.png"] style:UIBarButtonItemStylePlain target:self action:@selector(refreshClicked)];
 	self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(addFavoriteClicked)];
 	
+	
+	
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(genderPrefChanged) name:kGenderChangedNotification object:nil];
+	
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(favsAdded) name:kFavoriteVenuesWereAddedNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(favsRemoved) name:kFavoriteVenuesWereRemovedNotification object:nil];
 	
 	_sortByClosestFirst = ^ NSComparisonResult (id obj1, id obj2) {
 		
@@ -74,13 +103,71 @@
 
 -(void) viewWillAppear:(BOOL)animated {
 	
+	
+	
 	NSLog(@"will appear");
 	
 	if ( [Foursquare2 isNeedToAuthorize]) {
 		
 		return;
 		
-	} else if ( !isLoading && (venuesArray ==nil || ([venuesArray count] ==0) || ([Model instance].favoritesAreOutOfDate )) ) {
+		//} else if ( !isLoading && (venuesArray ==nil || ([venuesArray count] ==0) || ([Model instance].favoritesAreOutOfDate )) ) {
+	//} else if ( !isLoading && (venuesArray ==nil || ([venuesArray count] ==0) ||  favoritesWereAddedSinceLastUpdate  )) {
+	} else if ( !isLoading ) {
+		
+		[self syncMyVenuesToModel];
+		[self populateVenuesThatNeedData];
+		
+		int count = [venuesThatNeedData count];
+		
+		NSLog(@"needed: %i " ,count );
+		
+		if ( [[Model instance].favoriteVenues count] == 0 ) { 
+			
+			[self showNoFavs];
+			return; 
+			
+		} else {
+			[self hideNoFavs];
+		}
+		
+		if ( count > 0 ) {
+			
+			NSLog(@"starting loc from FAVS");
+			[self startLocation];
+			
+		} else if ( count == 0 && (favoritesWereRemovedSinceLastUpdate || favoritesWereAddedSinceLastUpdate )) {
+			
+			NSLog(@"just clearing data...");
+			
+			[self clearDataAndViews];
+			[self displayVenues];
+			
+		}
+		
+	}
+	
+	
+}
+
+-(BOOL) scrollViewShouldRefresh:(UIScrollView*)_scrollView {
+	
+	[self refreshClicked];
+	return YES;
+	
+}
+
+/*
+-(void) viewWillAppear:(BOOL)animated {
+	
+	NSLog(@"will appear");
+	
+	if ( [Foursquare2 isNeedToAuthorize]) {
+		
+		return;
+		
+	//} else if ( !isLoading && (venuesArray ==nil || ([venuesArray count] ==0) || ([Model instance].favoritesAreOutOfDate )) ) {
+	} else if ( !isLoading && (venuesArray ==nil || ([venuesArray count] ==0) ||  favoritesWereAddedSinceLastUpdate  )) {
 		
 		if ( [[Model instance].favoriteVenues count] == 0 ) { 
 			
@@ -93,9 +180,25 @@
 		
 		[self startLocation];
 		
+	} else if ( !isLoading && favoritesWereRemovedSinceLastUpdate  ) {
+		
+		if ( [[Model instance].favoriteVenues count] == 0 ) { 
+			
+			[self showNoFavs];
+			
+		} else {
+			
+			[self hideNoFavs];
+			
+			[self displayVenues];
+			
+			
+		}
+		
 	}
 	
 }
+*/
 
 -(void) viewWillDisappear:(BOOL)animated {
 	
@@ -104,40 +207,87 @@
 	
 }
 
+#pragma mark -
+
 -(void) genderPrefChanged {
+	
+	
+	[venueViews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+	
+	scrollView.contentOffset = CGPointMake(0, 0);
+	
+	[venueViews removeAllObjects];
+	[venueViews release];
+	
+	venueViews = [[NSMutableArray alloc] init];
+	
+	currentYOffset = 0;
 	
 	//[self refreshClicked];
 	[self displayVenues];
+	
+	
+}
+
+
+-(void) favsAdded {
+	
+	favoritesWereAddedSinceLastUpdate = YES;
+	
+}
+
+-(void) favsRemoved {
+	
+	favoritesWereRemovedSinceLastUpdate = YES;
 	
 }
 
 -(void) hideNoFavs {
 	
 	NSLog(@"hide favs");
+	statusLabel.text = @"Your Favorite Venues";
+	scrollView.userInteractionEnabled = YES;
 	
 	if ( [noFavsView superview] ) {
 		[noFavsView removeFromSuperview];
 		noFavsView = nil;
+	}
+	
+	if ( [noFavsArrow superview] ) {
+		[noFavsArrow removeFromSuperview];
+		noFavsArrow = nil;
 	}
 	
 }
 
 -(void) showNoFavs {
 	
+	scrollView.userInteractionEnabled = NO;
 	NSLog(@"show favs");
 	
 	[self clearDataAndViews];
 	
+	statusLabel.text = @"Pick a Favorite Venue";
+	
 	if ( [noFavsView superview] ) {
+		
 		[noFavsView removeFromSuperview];
 		noFavsView = nil;
+		
+		[noFavsArrow removeFromSuperview];
+		noFavsArrow = nil;
+		
 	}
 	
-	noFavsView = [[UIView alloc] initWithFrame:CGRectInset(self.view.bounds, 36, 130)];
-	noFavsView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.2];
-	noFavsView.layer.cornerRadius = 20;
+	//noFavsView = [[UIView alloc] initWithFrame:CGRectInset(self.view.bounds, 36, 130)];
+	//noFavsView.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.2];
+	//noFavsView.layer.cornerRadius = 20;
+	noFavsView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"no-favs-placeholder.png"]];
 	noFavsView.center = self.view.center;
 	
+	noFavsArrow = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"pick-fav-arrow.png"]];
+	noFavsArrow.center = CGPointMake(41, 20);
+	/*
 	UILabel * lab = [[UILabel alloc] init];
 	lab.font = [UIFont boldSystemFontOfSize:18];
 	lab.textColor = [UIColor colorWithWhite:1.0 alpha:0.8];
@@ -150,9 +300,13 @@
 	//[lab sizeToFit];
 	[noFavsView addSubview:lab];
 	[lab release];
+	*/
 	
 	[self.view addSubview:noFavsView];
+	[self.view addSubview:noFavsArrow];
+	
 	[noFavsView release];
+	[noFavsArrow release];
 	
 }
 
@@ -187,6 +341,9 @@
 		
 	if ( isLoading ) { return; }
 	
+	
+	[self clearPopulatedVenueData];
+	[self populateVenuesThatNeedData];
 	[self startLocation];
 	
 	//[self setLoading:YES withMessage:@"Refreshing..."];
@@ -213,7 +370,10 @@
 	
 	isLocating = YES;
 	
+	NSLog(@"starting location");
+	
 	[self setLoading:YES withMessage:@"Locating..."];
+	hud.mode = MBProgressHUDModeIndeterminate;
 	
 	[Locator instance].currentDesiredAccuracy = 1500;
 	[Locator instance].location = nil;
@@ -304,14 +464,21 @@
 	
 }
 
+-(void) delayedShowApiError {
+	
+	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(showApiError) object:nil];
+	[self performSelector:@selector(showApiError) withObject:nil afterDelay:1.4];
+	
+}
+
 -(void) showApiError {
+	
 	
 	UIAlertView * al = [[UIAlertView alloc] initWithTitle:@"Oops" message:@"The internet isn't behaving, please try again later!" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil];
 	[al show];
 	[al release];
 	
-	[self stopLoading];
-	
+	//--[self stopLoading];
 	
 	
 }
@@ -327,57 +494,160 @@
 	venueViews = [[NSMutableArray alloc] init];
 	currentYOffset = 0;
 	
-	[venuesArray removeAllObjects];
-	[venuesArray release];
-	venuesArray = nil;
+	//--[venuesArray removeAllObjects];
+	// [venuesArray release];
+	// venuesArray = nil;
+	
 	
 }
 
+-(void) clearPopulatedVenueData {
+	
+	for (FSVenue * ven in venuesArray) {
+		
+		ven.hasRetrievedPeopleHere = NO;
+		
+	}
+	
+}
+
+-(void) populateVenuesThatNeedData {
+	
+	[venuesThatNeedData removeAllObjects];
+	
+	
+	
+	for (FSVenue * ven in venuesArray) {
+		
+		if ( !ven.hasRetrievedPeopleHere ) {
+			[venuesThatNeedData addObject:ven];
+		}
+		
+	}
+	
+	NSLog(@"populate venues that need data, %i venuesArray , and %i need data " , [venuesArray count] , [venuesThatNeedData count] );
+	
+}
+
+-(void) syncMyVenuesToModel {
+	
+	NSMutableArray * vensToRemove = [[NSMutableArray alloc] init];
+	
+	// do i have any venues that don't exist in model ? ( and should be removed from my copy )
+	for ( FSVenue * ven in venuesArray ) {
+		
+		BOOL venueExistsInModel = NO;
+		
+		for (FSVenue * modelVen in [Model instance].favoriteVenues ) {
+			
+			if ( [ven isSameAs:modelVen] ){
+				venueExistsInModel = YES;
+			}
+			
+		}
+		
+		if ( !venueExistsInModel ) {
+			[vensToRemove addObject:ven];
+		}
+		
+	}
+	
+	[venuesArray removeObjectsInArray:vensToRemove];
+	[vensToRemove release];
+	
+	
+	// are there any venues in model that don't exist here ?
+	for ( FSVenue * ven in [Model instance].favoriteVenues ) {
+		
+		BOOL venueExistsHere = NO;
+		
+		for (FSVenue * myVen in venuesArray ) {
+			
+			if ( [ven isSameAs:myVen] ){
+				venueExistsHere = YES;
+			}
+			
+		}
+		
+		if ( !venueExistsHere ) {
+			[venuesArray addObject:ven];
+		}
+		
+	}
+	
+}	
+
 -(void) findPeople {
 	
-	
-	//loc = [Locator instance].location;
-	
-	//NSLog(@"Got location: %@ " , [Locator instance].latString );
-	
-	//[Foursquare2 searchVenuesNearByLatitude:[Locator instance].latString longitude:[Locator instance].lonString accuracyLL:@"5000" altitude:nil accuracyAlt:nil query:@"" limit:@"200" intent:nil callback:^(BOOL success,id result){
+	numberOfVenuesQueried = 0;
 	
 	hud.labelText = @"Searching...";
-	
+	hud.mode = MBProgressHUDModeDeterminate;
+	hud.progress = 0.0;
 	
 	[self clearDataAndViews];
 	
-	//[Foursquare2 getTrendingVenuesNearByLatitude:[Locator instance].latString longitude:[Locator instance].lonString radius:@"5000" limit:@"50" callback:^(BOOL success,id result){
+	//[pullToRefresh resetFrames];
+	
+	//NSArray * tempVenues = [Model instance].favoriteVenues;
+	//NSMutableArray * tempVenues = [Model instance].favoriteVenues;
+	
+	//[self syncMyVenuesToModel];
+	
+	//venuesArray = [[NSMutableArray alloc] init];
+	
+	//numberOfVenuesToQuery = [tempVenues count];
+	int numNeed = [venuesThatNeedData count];
+	
+	NSLog(@"How many need data? %i " ,  numNeed );
+	
+	if ( numNeed == 0 ) {
+		
+		NSLog(@"WTF? ");
+		
+		
+		[self displayVenues];
+		
+		return;
+		
+	}
 	
 	
-	/*if ( !success ) {
-	 
-	 [self performSelectorOnMainThread:@selector(showApiError) withObject:nil waitUntilDone:YES];			
-	 return;
-	 }
-	 */
+	numberOfVenuesToQuery = numNeed;//[venuesThatNeedData count];
 	
-	//NSLog(@"got stuff: %@ , %@ " , result , [result class]);
-	
-	//NSArray * tempVenues = [[result objectForKey:@"response"] objectForKey:@"venues"];
-	//tempVenues = [FSVenue venueArrayFromJson:tempVenues];
-	
-	NSArray * tempVenues = [Model instance].favoriteVenues;
-	
-	venuesArray = [[NSMutableArray alloc] init];
-	
-	numberOfVenuesToQuery = [tempVenues count];
-	
-	for (FSVenue * ven in tempVenues) {
+	for (FSVenue * ven in venuesThatNeedData ) {
 		
 		//NSLog(@"Name: %@ " , ven.name );
 		
 		[Foursquare2 getDetailForVenue:ven.venueId callback:^(BOOL success, id result2){
 			
-			if ( !success ) return;
+			numberOfVenuesQueried ++;
+			hud.progress = ((float)numberOfVenuesQueried / (float)numberOfVenuesToQuery);
+			
+			if ( !success ) {
+				
+				NSLog(@"nosucc, %@" , result2 );
+				[self performSelectorOnMainThread:@selector(delayedShowApiError) withObject:nil waitUntilDone:YES];
+				[self performSelectorOnMainThread:@selector(delayedDisplayVenues) withObject:nil waitUntilDone:NO];	
+				return;
+			
+			}
 			
 			FSVenue * venue = [FSVenue venueFromJson:[[result2 objectForKey:@"response"] objectForKey:@"venue"]];
+			NSLog(@"received data for venue: %@ " , venue.name );
+			
+			FSVenue * venToRemove = nil;
+			for (FSVenue * oldVen in venuesArray) {
+				if ( [oldVen isSameAs:venue] ) {
+					venToRemove = oldVen;
+				}
+			}
+			
+			// remove the old un-populated version of this...
+			[venuesArray removeObject:venToRemove];
 			[venuesArray addObject:venue];
+			
+			//NSLog(@"got fav venue: %@  " , venue.name );
 			
 			CLLocationCoordinate2D loc = [Locator instance].location.coordinate;
 			
@@ -388,8 +658,19 @@
 			
 			venue.distanceFromMe = geo_distance(venue.lat, venue.lng, myLat, myLng, 'M');
 			
+			// find this in model and update 
 			
-			NSLog(@"venue: %@ , people there: %i , lat: %f , dist: %f " , venue.name , [venue.peopleHere count] , venue.lat , venue.distanceFromMe );
+			NSArray * favsInModel = [Model instance].favoriteVenues;
+			
+			for (FSVenue * modelVenue in favsInModel) {
+				
+				if ( [modelVenue isSameAs:venue] ) {
+					[modelVenue copyDataFromAnotherVenue:venue];
+				}
+				
+			}
+			
+			//NSLog(@"venue: %@ , people there: %i , lat: %f , dist: %f " , venue.name , [venue.peopleHere count] , venue.lat , venue.distanceFromMe );
 			
 			//[self performSelectorOnMainThread:@selector(showUsersFromVenue:) withObject:venue waitUntilDone:NO];	
 			
@@ -416,7 +697,7 @@
 -(void) delayedDisplayVenues {
 	
 	[NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(displayVenues) object:nil];
-	[self performSelector:@selector(displayVenues) withObject:nil afterDelay:0.85];
+	[self performSelector:@selector(displayVenues) withObject:nil afterDelay:0.55];
 	
 	
 }
@@ -430,26 +711,42 @@
 	
 }
 
+#pragma mark -
+
 -(void) displayVenues {
 	
-	NSLog(@"num: %i , count: %i " , numberOfVenuesToQuery , [venuesArray count] );
+	// NSLog(@"num: %i , count: %i " , numberOfVenuesToQuery , [venuesArray count] );
 	
-	if ( [venuesArray count] == numberOfVenuesToQuery ) {
-		[Model instance].favoritesAreOutOfDate = NO;
+	// check if the total number of API calls returned are equal to the amount of venues we wanted to check for...
+	// if so, take away the loading HUD
+	
+	if ( numberOfVenuesQueried == numberOfVenuesToQuery ) {
+		
+		favoritesWereRemovedSinceLastUpdate = NO;
+		favoritesWereAddedSinceLastUpdate = NO;
 		[self stopLoading];
+		
+		if ( scrollView.isLoading ) {
+			[scrollView stopLoading];
+		}
+		
 	}
-	
-	NSLog(@"DISPLAY");
 	
 	[self sortVenuesByDistance];
 	
-	currentYOffset = 0;
+	//--[UIView beginAnimations:@"animateFavs" context:nil];
+	currentYOffset = 42;
 	
 	for (FSVenue * venue in venuesArray) {
 		
-		[self showUsersFromVenue:venue];
+		if ( venue.hasRetrievedPeopleHere ) {
+			[self showUsersFromVenue:venue];
+		}
 		
 	}
+	
+	//--[UIView commitAnimations];
+	
 	
 	
 }
@@ -486,7 +783,7 @@
 	VenueView * venView = nil;
 	
 	for (VenueView * vView in venueViews) {
-		if ( vView.venue == ven ) {
+		if ( [vView.venue isSameAs:ven] ) {
 			venView = vView;
 		}
 	}
@@ -495,12 +792,22 @@
 		
 		venView = [[VenueView alloc] init];
 		//venView.genderPreference = pref;
+		NSLog(@"creating venue view for venue: %@" , ven.name);
+		
 		venView.venue = ven;
+		
 		venView.delegate = self;
 		[venueViews addObject:venView];
 		[venView release];
 		
+	} else {
+		NSLog(@"already had venue view for venue: %@" , ven.name);
 	}
+	
+	// you can set venue each time, but it will re-load all profile images for each cell
+	// venView.venue = ven;
+	
+	
 	//float height = [self getCurrentYOffset];
 	
 	float heightOfView; 
@@ -523,11 +830,14 @@
 	
 	scrollView.contentSize = CGSizeMake(self.view.frame.size.width, currentYOffset);
 	
+	//[pullToRefresh resetFrames];
 	
 	
 	
 }
 
+#pragma mark -
+#pragma mark Venue Delegate
 
 -(void) venueViewDidClickVenueTitle:(VenueView*)venView {
 	
@@ -546,6 +856,7 @@
 
 -(void) venueView:(VenueView*)venView clickedUser:(FSUser*)usr {
 	
+
 	NSLog(@"User clicked: %@ " , usr );
 	
 	self.hidesBottomBarWhenPushed  = YES;

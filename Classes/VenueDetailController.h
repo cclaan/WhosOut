@@ -11,6 +11,7 @@
 //#import <MapKit/MapKit.h>
 #include <MapKit/MapKit.h>
 #include <MapKit/MKAnnotation.h>
+#import "EGOImageView.h"
 
 @class MKAnnotation;
 
@@ -19,9 +20,15 @@
 	IBOutlet MKMapView * mapView;
 	
 	//MKAnnotation * venueAnnotation;
-	IBOutlet UIBarButtonItem * favoriteButton;
-	IBOutlet UIBarButtonItem * callButton;
+	IBOutlet UIButton * favoriteButton;
+	IBOutlet UIButton * callButton;
 	
+	IBOutlet UILabel * infoLabel;
+	IBOutlet UILabel * subLabel;
+	
+	IBOutlet UIButton * filterButton;
+	
+	IBOutlet EGOImageView * categoryImageView;
 	
 }
 
@@ -34,5 +41,7 @@
 -(IBAction) getDirectionsClicked;
 -(IBAction) callClicked;
 -(IBAction) checkinClicked;
+
+-(IBAction) filterClicked;
 
 @end

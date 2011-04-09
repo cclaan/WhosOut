@@ -81,7 +81,7 @@
 	
 	self.isLocalFavorite = NO;
 	
-	//-[[Model instance] removeFavoriteVenue:self];
+	//-[[Model instance] removeFavoriteUser:self];
 	
 	FMDatabase * db = [Model instance].db;
 

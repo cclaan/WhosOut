@@ -43,7 +43,7 @@
     
 	[super viewDidLoad];
 	
-	userImageView.backgroundColor = [UIColor darkGrayColor];
+	userImageView.backgroundColor = [UIColor clearColor];
 	userImageView.contentMode = UIViewContentModeScaleAspectFit;
 	
 	//userImageView.image = 
@@ -62,11 +62,11 @@
 	if ( user.isLocalFavorite ) {
 		[favoriteUserButton setTitle:@"Unfavorite" forState:UIControlStateNormal];
 	} else {
-		[favoriteUserButton setTitle:@"Mark Favorite" forState:UIControlStateNormal];
+		[favoriteUserButton setTitle:@"Favorite" forState:UIControlStateNormal];
 	}
 	
 	[Foursquare2 getDetailForUser: user.userId callback:^(BOOL success, id result){
-		
+	//[Foursquare2 getDetailForUser: @"38283" callback:^(BOOL success, id result){	
 		
 		if ( success ) {
 			NSLog(@"result: %@ " , result );
@@ -93,7 +93,7 @@
 	if ( user.isLocalFavorite ) {
 		[favoriteUserButton setTitle:@"Unfavorite" forState:UIControlStateNormal];
 	} else {
-		[favoriteUserButton setTitle:@"Mark Favorite" forState:UIControlStateNormal];
+		[favoriteUserButton setTitle:@"Favorite" forState:UIControlStateNormal];
 	}
 	
 	

@@ -9,10 +9,12 @@
 #import <UIKit/UIKit.h>
 #import "Foursquare2.h"
 #import "MBProgressHUD.h"
+#import "PullToRefreshManager.h"
+#import "UIScrollViewPullRefresh.h"
 
 #import "FSObjects.h"
 
-@interface AroundMeViewController : UIViewController <UITableViewDelegate, UITableViewDataSource> {
+@interface AroundMeViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, PullToRefreshDelegate> {
 	
 
 	//BOOL isLoading;
@@ -33,10 +35,18 @@
 	
 	//MBProgressHUD * hud;
 	
-	IBOutlet UIScrollView * scrollView;
+	IBOutlet UIScrollViewPullRefresh * scrollView;
 	
 	IBOutlet UITableView * tableView;
 	
+	PullToRefreshManager * pullToRefresh;
+	
+	UILabel * statusLabel;
+	
+	int totalGuysOut;
+	int totalGirlsOut;
+	
+	UIImageView * noVenuesView;
 	
 	
 }
